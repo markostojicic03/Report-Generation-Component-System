@@ -12,6 +12,7 @@
             <option value="$PROJECT_DIR$/excelImplementation" />
             <option value="$PROJECT_DIR$/pdfImplementation" />
             <option value="$PROJECT_DIR$/specification" />
+            <option value="$PROJECT_DIR$/textImplementation" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -1,0 +1,2 @@
+# softverskekomponente_tim_markostojicic_vidanstojic
+Prvi projekat iz softverskih komponenti.

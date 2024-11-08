@@ -58,10 +58,12 @@ fun loadData(){
         3 -> {
             print("Write your json path: ")
             var response2 = scanner.next()
+            println("-----------------------------------")
             val inputStream = object {}.javaClass.getResourceAsStream(response2)
             val reader = InputStreamReader(inputStream)
             val data = prepareData(reader)
             reader.close()
+
             println("1. TXT")
             println("2. CSV")
             println("3. PDF")
@@ -73,7 +75,7 @@ fun loadData(){
             when(response3){
                 1 ->{
                     println("Usao u txt export services.")
-                    exporterServices["TXT"]?.generateReport(data, "izlaz.txt", true)
+                    exporterServices["TXT"]?.generateReport(data, "izlaz.txt", true, "","","/config.txt")
                 }
                 2 -> exporterServices["CSV"]?.generateReport(data, "izlaz.csv", true)
                 3 -> exporterServices["PDF"]?.generateReport(data, "izlaz.pdf", true)
@@ -103,20 +105,17 @@ fun main() {
 
     println(exporterServices.keys)
 
-    val inputStream = object {}.javaClass.getResourceAsStream("/izvorPodataka.json")
-    val reader = InputStreamReader(inputStream)
-    val data = prepareData(reader)
-    reader.close()*/
     var scanner = Scanner(System.`in`)
     while(true){
         println("----------------------------------------------")
         println("1. Generate your report.")
-        println("2. Generate your report with title/summary.")
+        println("2. Generate your report with title/summary and calculations.")
         println("3. Generate your report with calculations.")
         println("4. Exit.")
         println("----------------------------------------------")
         print("Choose your option: ")
         var response = scanner.nextInt()
+        println("----------------------------------------------")
         when (response) {
             1 -> loadData()
             2 -> println(2)

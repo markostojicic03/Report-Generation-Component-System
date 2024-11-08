@@ -1,6 +1,7 @@
 package specification
 
 import java.awt.Color
+import java.io.File
 import java.sql.ResultSet
 import java.sql.ResultSetMetaData
 
@@ -28,11 +29,20 @@ interface ReportInterface {
      */
 
     fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null)
+    fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String){
+        var calculatedData = calculateData(data,config)
+        //generateReport(calculatedData, destination, header, title, summary )
+    }
 
     fun generateReport(data: ResultSet, destination: String, header: Boolean, title: String? = null, summary: String? = null){
         val preparedData = prepareData(data)
         generateReport(preparedData, destination, header, title, summary)
     }
+
+    /*fun generateReport(){
+        calculations(podaci)
+        generateReport(preparedData, destination, header, title, summary)
+    }*/
 
     private fun prepareData(resultSet: ResultSet): Map<String, List<String>> {
         val reportData = mutableMapOf<String, MutableList<String>>()
@@ -86,7 +96,30 @@ interface ReportInterface {
         }
 
     }
+    fun calculateData(columns: Map<String, List<String>>, config: String){
+        var columns = ""
+        var calculate = ""
+        var title = ""
 
+        File(config).forEachLine { line ->
+            val parts = line.split(":")
+            if (parts.size == 2) {
+                val key = parts[0].trim()
+                val value = parts[1].trim()
+                when (key) {
+                    "columns" -> columns = value
+                    "calculate" -> calculate = value
+                    "title" -> title = value
+                }
+            }
+        }
+
+        println("Columns: $columns")
+        println("Calculate: $calculate")
+        println("Title: $title")
+
+        //return reportData
+    }
 
 
 }

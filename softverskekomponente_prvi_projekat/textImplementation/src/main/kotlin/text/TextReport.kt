@@ -1,6 +1,6 @@
 package text
 
-import spec.ReportInterface
+import specification.ReportInterface
 import java.io.File
 
 class TextReport: ReportInterface {

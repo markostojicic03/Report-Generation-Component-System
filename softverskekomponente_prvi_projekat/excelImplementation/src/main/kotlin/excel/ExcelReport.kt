@@ -3,7 +3,7 @@ package excel
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import spec.ReportInterface
+import specification.ReportInterface
 import java.io.FileOutputStream
 
 class ExcelReport: ReportInterface{

@@ -4,7 +4,7 @@ import com.lowagie.text.*
 import com.lowagie.text.pdf.PdfPCell
 import com.lowagie.text.pdf.PdfPTable
 import com.lowagie.text.pdf.PdfWriter
-import spec.ReportInterface
+import specification.ReportInterface
 import java.io.FileOutputStream
 
 class PdfReport: ReportInterface {

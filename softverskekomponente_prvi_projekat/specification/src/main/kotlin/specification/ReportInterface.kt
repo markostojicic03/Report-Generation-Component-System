@@ -1,4 +1,4 @@
-package spec
+package specification
 
 import java.awt.Color
 import java.sql.ResultSet

@@ -1,6 +1,6 @@
 package csv
 
-import spec.ReportInterface
+import specification.ReportInterface
 import java.io.File
 
 class CsvReport: ReportInterface {

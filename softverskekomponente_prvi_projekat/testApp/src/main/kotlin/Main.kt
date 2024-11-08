@@ -34,7 +34,14 @@ fun prepareData(jsonData: InputStreamReader): Map<String, List<String>> {
 
     return reportData
 }
-
+/**
+ *
+ * 1. Napisati println za korisnika.
+ * 2. Dodati fajlove gde korisnik oznacava sta zeli od kalkulacija/formatiranja.
+ * 3. Napraviti funkciju koja parsira taj fajl od korisnika i kupi te podatke i zatim zove funkcije koje je potrebno uraditi za kalk/formatiranje.
+ * 4. Dodati u specifikaciji funkcije za kalk/formatiranje.
+ * 5. Napraviti dokumentaciju u specifikaciji(implementirati java docs).
+ * */
 fun main() {
     val serviceLoader = ServiceLoader.load(ReportInterface::class.java)
 
@@ -51,9 +58,26 @@ fun main() {
     val reader = InputStreamReader(inputStream)
     val data = prepareData(reader)
     reader.close()
-
-    println(data)
-
-    exporterServices["TXT"]?.generateReport(data, "izlaz2.txt", true)
+    var scanner = Scanner(System.`in`)
+    while(true){
+        println("----------------------------------------------")
+        println("1. Load data for your report.")
+        println("2. Generate your report.")
+        println("3. Generate your report with title/summary.")
+        println("4. Generate your report with calculations.")
+        println("5. Exit.")
+        println("----------------------------------------------")
+        print("Choose your option: ")
+        var response = scanner.nextInt()
+        when (response) {
+            1 -> println(1)
+            2 -> println(2)
+            3 -> println(3)
+            4 -> println(4)
+            5 -> break
+            else -> println("Unknown command.")
+        }
+        break
+    }
 
 }

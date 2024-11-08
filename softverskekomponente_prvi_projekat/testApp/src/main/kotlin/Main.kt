@@ -16,6 +16,10 @@ data class Schedule(
     val time_to: String
 )
 
+val exporterServices = mutableMapOf<String, ReportInterface> ()
+val serviceLoader = ServiceLoader.load(ReportInterface::class.java)
+
+
 fun prepareData(jsonData: InputStreamReader): Map<String, List<String>> {
     val gson = Gson()
     val scheduleType = object : TypeToken<List<Schedule>>() {}.type
@@ -34,6 +38,51 @@ fun prepareData(jsonData: InputStreamReader): Map<String, List<String>> {
 
     return reportData
 }
+fun loadData(){
+
+
+    var scanner = Scanner(System.`in`)
+    println("1. TXT")
+    println("2. Database")
+    println("3. Json")
+    print("Choose the source of your data:")
+    var response = scanner.nextInt()
+    println("--------------------------------")
+    when(response){
+        1 ->{
+            print("Write your file path:")
+            var response2 = scanner.next()
+
+        }
+        2 -> print("")
+        3 -> {
+            print("Write your json path: ")
+            var response2 = scanner.next()
+            val inputStream = object {}.javaClass.getResourceAsStream(response2)
+            val reader = InputStreamReader(inputStream)
+            val data = prepareData(reader)
+            reader.close()
+            println("1. TXT")
+            println("2. CSV")
+            println("3. PDF")
+            println("4. EXCEL")
+            print("Choose your format: ")
+            var response3 = scanner.nextInt()
+            println("---------------------------------")
+
+            when(response3){
+                1 ->{
+                    println("Usao u txt export services.")
+                    exporterServices["TXT"]?.generateReport(data, "izlaz.txt", true)
+                }
+                2 -> exporterServices["CSV"]?.generateReport(data, "izlaz.csv", true)
+                3 -> exporterServices["PDF"]?.generateReport(data, "izlaz.pdf", true)
+                4 -> exporterServices["EXCEL"]?.generateReport(data, "izlaz.xlsx", true)
+            }
+        }
+    }
+}
+
 /**
  *
  * 1. Napisati println za korisnika.
@@ -43,9 +92,9 @@ fun prepareData(jsonData: InputStreamReader): Map<String, List<String>> {
  * 5. Napraviti dokumentaciju u specifikaciji(implementirati java docs).
  * */
 fun main() {
-    val serviceLoader = ServiceLoader.load(ReportInterface::class.java)
+   // val serviceLoader = ServiceLoader.load(ReportInterface::class.java)
 
-    val exporterServices = mutableMapOf<String, ReportInterface> ()
+   // val exporterServices = mutableMapOf<String, ReportInterface> ()
 
     serviceLoader.forEach{
             service ->
@@ -57,24 +106,22 @@ fun main() {
     val inputStream = object {}.javaClass.getResourceAsStream("/izvorPodataka.json")
     val reader = InputStreamReader(inputStream)
     val data = prepareData(reader)
-    reader.close()
+    reader.close()*/
     var scanner = Scanner(System.`in`)
     while(true){
         println("----------------------------------------------")
-        println("1. Load data for your report.")
-        println("2. Generate your report.")
-        println("3. Generate your report with title/summary.")
-        println("4. Generate your report with calculations.")
-        println("5. Exit.")
+        println("1. Generate your report.")
+        println("2. Generate your report with title/summary.")
+        println("3. Generate your report with calculations.")
+        println("4. Exit.")
         println("----------------------------------------------")
         print("Choose your option: ")
         var response = scanner.nextInt()
         when (response) {
-            1 -> println(1)
+            1 -> loadData()
             2 -> println(2)
             3 -> println(3)
-            4 -> println(4)
-            5 -> break
+            4 -> break
             else -> println("Unknown command.")
         }
         break

@@ -38,7 +38,7 @@ fun prepareData(jsonData: InputStreamReader): Map<String, List<String>> {
 
     return reportData
 }
-fun loadData(){
+fun loadData(flagForConfig : Boolean){
 
 
     var scanner = Scanner(System.`in`)
@@ -74,8 +74,20 @@ fun loadData(){
 
             when(response3){
                 1 ->{
-                    println("Usao u txt export services.")
-                    exporterServices["TXT"]?.generateReport(data, "izlaz.txt", true, "","","/config.txt")
+                    println("Usao u txt export services u loadData.")
+                    if(!flagForConfig){
+                        exporterServices["TXT"]?.generateReport(data, "izlaz.txt", true)
+                    }
+                    else{
+                        val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
+                        if (inputStream != null) {
+
+                            val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+                            exporterServices["TXT"]?.generateReport(data, "izlaz.txt", true, title = null, summary = null, config = configPath)
+                        } else {
+                            println("Fajl nije pronađen!")
+                        }
+                    }
                 }
                 2 -> exporterServices["CSV"]?.generateReport(data, "izlaz.csv", true)
                 3 -> exporterServices["PDF"]?.generateReport(data, "izlaz.pdf", true)
@@ -109,16 +121,16 @@ fun main() {
     while(true){
         println("----------------------------------------------")
         println("1. Generate your report.")
-        println("2. Generate your report with title/summary and calculations.")
-        println("3. Generate your report with calculations.")
+        println("2. Generate your report with additional configuration.")
+        println("3. None")
         println("4. Exit.")
         println("----------------------------------------------")
         print("Choose your option: ")
         var response = scanner.nextInt()
         println("----------------------------------------------")
         when (response) {
-            1 -> loadData()
-            2 -> println(2)
+            1 -> loadData(false)
+            2 -> loadData(true)
             3 -> println(3)
             4 -> break
             else -> println("Unknown command.")

@@ -29,6 +29,7 @@ interface ReportInterface {
      */
 
     fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null)
+
     fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String){
         var calculatedData = calculateData(data,config)
         //generateReport(calculatedData, destination, header, title, summary )
@@ -96,29 +97,51 @@ interface ReportInterface {
         }
 
     }
-    fun calculateData(columns: Map<String, List<String>>, config: String){
-        var columns = ""
-        var calculate = ""
-        var title = ""
 
-        File(config).forEachLine { line ->
-            val parts = line.split(":")
-            if (parts.size == 2) {
-                val key = parts[0].trim()
-                val value = parts[1].trim()
-                when (key) {
-                    "columns" -> columns = value
-                    "calculate" -> calculate = value
-                    "title" -> title = value
+    private fun calculateData(columns: Map<String, List<String>>, config: String){
+        val lines = File(config).readLines()
+
+        val columns = mutableListOf<Int>()
+        var calculation: String? = null
+        val calculationColumns = mutableListOf<Int>()
+        var customTitle: String? = null
+        var customSummary: String? = null
+
+
+        val columnsRegex = Regex("""Columns for export:\s*([\d,]+)""")
+        val calculationRegex = Regex("""Calculations:\s*(\w+)\(([\d,]+)\)""")
+        val titleRegex = Regex("""Title:\s*(.*)""")
+        val summaryRegex = Regex("""Summary:\s*(.*)""")
+
+        for (line in lines) {
+            when {
+                columnsRegex.matches(line) -> {
+                    val match = columnsRegex.find(line)
+                    match?.groups?.get(1)?.value?.split(",")?.forEach {
+                        columns.add(it.trim().toInt())
+                    }
+                }
+                calculationRegex.matches(line) -> {
+                    val match = calculationRegex.find(line)
+                    calculation = match?.groups?.get(1)?.value
+                    match?.groups?.get(2)?.value?.split(",")?.forEach {
+                        calculationColumns.add(it.trim().toInt())
+                    }
+                }
+                titleRegex.matches(line) -> {
+                    customTitle = titleRegex.find(line)?.groups?.get(1)?.value
+                }
+                summaryRegex.matches(line) -> {
+                    customSummary = summaryRegex.find(line)?.groups?.get(1)?.value
                 }
             }
         }
 
-        println("Columns: $columns")
-        println("Calculate: $calculate")
-        println("Title: $title")
-
-        //return reportData
+        // Ispis podataka za proveru
+        println("Konfigurisane kolone: $columns")
+        println("Kalkulacija: $calculation za kolone $calculationColumns")
+        println("Naslov: $customTitle")
+        println("Zaključak: $customSummary")
     }
 
 

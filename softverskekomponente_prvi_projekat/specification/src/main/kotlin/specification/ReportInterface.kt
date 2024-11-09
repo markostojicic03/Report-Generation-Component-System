@@ -146,7 +146,8 @@ interface ReportInterface {
             return dataAfterSum
         }
         else if(calculation == "AVG"){
-            return null
+            val dataAfterAvg = avgCalculate(data, columns, calculationColumns)
+            return dataAfterAvg
         }
         else if(calculation == "COUNT"){
             return null
@@ -188,6 +189,47 @@ interface ReportInterface {
 
         return result
 
+    }
+
+    private fun avgCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, avgColumns :MutableList<Int>):Map<String, List<String>>?{
+
+        val result = mutableMapOf<String, List<String>>()
+        val filteredData = mutableMapOf<String, List<String>>()
+
+        for(i in configColumns){
+            val columnName = data.keys.elementAt(i)
+            filteredData[columnName] = data[columnName] ?: emptyList()
+        }
+        val avgColumnValues = mutableListOf<String>()
+
+        val numRows = data.values.firstOrNull()?.size ?: 0
+        for (i in 0 until numRows) {
+            var numer = 0;
+            var sum = 0
+            for (colIndex in avgColumns) {
+                val columnName = data.keys.elementAt(colIndex)
+                val value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+                sum += value
+                numer++
+            }
+            val avg = (sum * 1.0) / (numer * 1.0)
+            avgColumnValues.add(avg.toString())
+        }
+
+        result["avgColumn"] = avgColumnValues
+
+        filteredData.forEach { (key, value) ->
+            result[key] = value
+        }
+
+        return result
+    }
+
+    private fun countCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, avgColumns :MutableList<Int>):Map<String, List<String>>?{
+
+        
+
+        return null
     }
 
 

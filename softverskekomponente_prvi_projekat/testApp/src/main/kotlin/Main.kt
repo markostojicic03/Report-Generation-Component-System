@@ -16,6 +16,10 @@ data class Schedule(
     val time_to: String
 )
 
+val exporterServices = mutableMapOf<String, ReportInterface> ()
+val serviceLoader = ServiceLoader.load(ReportInterface::class.java)
+
+
 fun prepareData(jsonData: InputStreamReader): Map<String, List<String>> {
     val gson = Gson()
     val scheduleType = object : TypeToken<List<Schedule>>() {}.type
@@ -34,13 +38,77 @@ fun prepareData(jsonData: InputStreamReader): Map<String, List<String>> {
 
     return reportData
 }
+fun loadData(flagForConfig : Boolean){
 
 
+    var scanner = Scanner(System.`in`)
+    println("1. TXT")
+    println("2. Database")
+    println("3. Json")
+    print("Choose the source of your data:")
+    var response = scanner.nextInt()
+    println("--------------------------------")
+    when(response){
+        1 ->{
+            print("Write your file path:")
+            var response2 = scanner.next()
 
+        }
+        2 -> print("")
+        3 -> {
+            print("Write your json path: ")
+            var response2 = scanner.next()
+            println("-----------------------------------")
+            val inputStream = object {}.javaClass.getResourceAsStream(response2)
+            val reader = InputStreamReader(inputStream)
+            val data = prepareData(reader)
+            reader.close()
+
+            println("1. TXT")
+            println("2. CSV")
+            println("3. PDF")
+            println("4. EXCEL")
+            print("Choose your format: ")
+            var response3 = scanner.nextInt()
+            println("---------------------------------")
+
+            when(response3){
+                1 ->{
+                    println("Usao u txt export services u loadData.")
+                    if(!flagForConfig){
+                        exporterServices["TXT"]?.generateReport(data, "izlaz.txt", true)
+                    }
+                    else{
+                        val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
+                        if (inputStream != null) {
+
+                            val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+                            exporterServices["TXT"]?.generateReport(data, "izlaz.txt", true, title = null, summary = null, config = configPath)
+                        } else {
+                            println("Fajl nije pronađen!")
+                        }
+                    }
+                }
+                2 -> exporterServices["CSV"]?.generateReport(data, "izlaz.csv", true)
+                3 -> exporterServices["PDF"]?.generateReport(data, "izlaz.pdf", true)
+                4 -> exporterServices["EXCEL"]?.generateReport(data, "izlaz.xlsx", true)
+            }
+        }
+    }
+}
+
+/**
+ *
+ * 1. Napisati println za korisnika.
+ * 2. Dodati fajlove gde korisnik oznacava sta zeli od kalkulacija/formatiranja.
+ * 3. Napraviti funkciju koja parsira taj fajl od korisnika i kupi te podatke i zatim zove funkcije koje je potrebno uraditi za kalk/formatiranje.
+ * 4. Dodati u specifikaciji funkcije za kalk/formatiranje.
+ * 5. Napraviti dokumentaciju u specifikaciji(implementirati java docs).
+ * */
 fun main() {
-    val serviceLoader = ServiceLoader.load(ReportInterface::class.java)
+   // val serviceLoader = ServiceLoader.load(ReportInterface::class.java)
 
-    val exporterServices = mutableMapOf<String, ReportInterface> ()
+   // val exporterServices = mutableMapOf<String, ReportInterface> ()
 
     serviceLoader.forEach{
             service ->
@@ -49,13 +117,25 @@ fun main() {
 
     println(exporterServices.keys)
 
-    val inputStream = object {}.javaClass.getResourceAsStream("/izvorPodataka.json")
-    val reader = InputStreamReader(inputStream)
-    val data = prepareData(reader)
-    reader.close()
-
-    println(data)
-
-    exporterServices["XLS"]?.generateReport(data, "probaexcel.xlsx", true)
+    var scanner = Scanner(System.`in`)
+    while(true){
+        println("----------------------------------------------")
+        println("1. Generate your report.")
+        println("2. Generate your report with additional configuration.")
+        println("3. None")
+        println("4. Exit.")
+        println("----------------------------------------------")
+        print("Choose your option: ")
+        var response = scanner.nextInt()
+        println("----------------------------------------------")
+        when (response) {
+            1 -> loadData(false)
+            2 -> loadData(true)
+            3 -> println(3)
+            4 -> break
+            else -> println("Unknown command.")
+        }
+        break
+    }
 
 }

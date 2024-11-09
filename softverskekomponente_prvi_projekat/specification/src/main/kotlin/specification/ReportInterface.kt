@@ -169,7 +169,7 @@ interface ReportInterface {
             filteredData[columnName] = data[columnName] ?: emptyList()
         }
         val sumColumnValues = mutableListOf<String>()
-        val numRows = data.values.firstOrNull()?.size ?: 0 
+        val numRows = data.values.firstOrNull()?.size ?: 0
         for (i in 0 until numRows) {
             var sum = 0
             for (colIndex in sumColumns) {

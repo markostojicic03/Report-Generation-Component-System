@@ -31,8 +31,8 @@ interface ReportInterface {
     fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null)
 
     fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String){
-        var calculatedData = calculateData(data,config)
-        //generateReport(calculatedData, destination, header, title, summary )
+        var dataAfterConfig = readConfig(data,config)
+        generateReport(dataAfterConfig!!, destination, header, title, summary )
     }
 
     fun generateReport(data: ResultSet, destination: String, header: Boolean, title: String? = null, summary: String? = null){
@@ -98,7 +98,7 @@ interface ReportInterface {
 
     }
 
-    private fun calculateData(columns: Map<String, List<String>>, config: String){
+    private fun readConfig(data: Map<String, List<String>>, config: String):Map<String, List<String>>?{
         val lines = File(config).readLines()
 
         val columns = mutableListOf<Int>()
@@ -140,8 +140,54 @@ interface ReportInterface {
         // Ispis podataka za proveru
         println("Konfigurisane kolone: $columns")
         println("Kalkulacija: $calculation za kolone $calculationColumns")
-        println("Naslov: $customTitle")
-        println("Zaključak: $customSummary")
+
+        if(calculation =="SUM"){
+            val dataAfterSum = sumCalculate(data, columns, calculationColumns)
+            return dataAfterSum
+        }
+        else if(calculation == "AVG"){
+            return null
+        }
+        else if(calculation == "COUNT"){
+            return null
+        }
+        else{
+            return null
+            // mnozenje, deljenje, oduzimanje??
+        }
+
+
+    }
+
+    private fun sumCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, sumColumns :MutableList<Int> ):Map<String, List<String>>?{
+
+        val result = mutableMapOf<String, List<String>>()
+        val filteredData = mutableMapOf<String, List<String>>()
+
+        for(i in configColumns){
+            val columnName = data.keys.elementAt(i)
+            filteredData[columnName] = data[columnName] ?: emptyList()
+        }
+        val sumColumnValues = mutableListOf<String>()
+        val numRows = data.values.firstOrNull()?.size ?: 0 
+        for (i in 0 until numRows) {
+            var sum = 0
+            for (colIndex in sumColumns) {
+                val columnName = data.keys.elementAt(colIndex)
+                val value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+                sum += value
+            }
+            sumColumnValues.add(sum.toString())
+        }
+
+        result["sumColumn"] = sumColumnValues
+
+        filteredData.forEach { (key, value) ->
+            result[key] = value
+        }
+
+        return result
+
     }
 
 

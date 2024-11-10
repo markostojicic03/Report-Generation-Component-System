@@ -42,6 +42,8 @@ interface ReportInterface {
         generateReport(preparedData, destination, header, title, summary)
     }
 
+   // fun generateReportWithFormatting(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null)
+
     /*fun generateReport(){
         calculations(podaci)
         generateReport(preparedData, destination, header, title, summary)
@@ -108,14 +110,14 @@ interface ReportInterface {
         val calculationColumns = mutableListOf<Int>()
         var customTitle: String? = null
         var customSummary: String? = null
-        var formattingType: String? = null
-        var textForFormatting: String? = null
+//        var formattingType: String? = null
+//        var textForFormatting: String? = null
 
         val columnsRegex = Regex("""Columns for export:\s*([\d,]+)""")
         val calculationRegex = Regex("""Calculations:\s*(\w+)\(([\d,]+)\)""")
         val titleRegex = Regex("""Title:\s*(.*)""")
         val summaryRegex = Regex("""Summary:\s*(.*)""")
-        val formattingRegex = Regex("""Formatting:\s*(\w+)\((\w+)\)""")
+    //    val formattingRegex = Regex("""Formatting:\s*(\w+)\((\w+)\)""")
 
         for (line in lines) {
             when {
@@ -138,11 +140,11 @@ interface ReportInterface {
                 summaryRegex.matches(line) -> {
                     customSummary = summaryRegex.find(line)?.groups?.get(1)?.value
                 }
-                formattingRegex.matches(line) -> {
-                    val match = formattingRegex.find(line)
-                    formattingType = match?.groups?.get(1)?.value ?: ""
-                    textForFormatting = match?.groups?.get(2)?.value ?: ""
-                }
+//                formattingRegex.matches(line) -> {
+//                    val match = formattingRegex.find(line)
+//                    formattingType = match?.groups?.get(1)?.value ?: ""
+//                    textForFormatting = match?.groups?.get(2)?.value ?: ""
+//                }
             }
         }
 
@@ -158,11 +160,11 @@ interface ReportInterface {
 
         if(calculation =="SUM"){
             val dataAfterSum = sumCalculate(data, columns, calculationColumns)
-            if((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty() )){
-                println("Poslat je zeljeni nacin formatiranja.")
-                
-            }
-            else println("Nema formatiranja u config fajlu.")
+//            if((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty() )){
+//                println("Poslat je zeljeni nacin formatiranja.")
+//
+//            }
+//            else println("Nema formatiranja u config fajlu.")
             return dataAfterSum
         }
         else if(calculation == "AVG"){

@@ -78,7 +78,7 @@ fun loadData(flagForConfig : Boolean){
                 1 ->{
                     println("Usao u txt export services u loadData.")
                     if(!flagForConfig){
-                        exporterServices["TXT"]?.generateReport(data, "izlaz.txt", true)
+                        exporterServices["TXT"]?.generateReport(data, "izlazCsvNormal.txt", true)
                     }
                     else{
                         val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
@@ -86,15 +86,63 @@ fun loadData(flagForConfig : Boolean){
 
                             val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
                            // val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
-                            exporterServices["TXT"]?.generateReport(data, "izlaz.txt", true, title = "", summary = "", config = configPath)
+                            exporterServices["TXT"]?.generateReport(data, "izlazTxtConfig.txt", true, title = "", summary = "", config = configPath)
                         } else {
                             println("Fajl nije pronađen!")
                         }
                     }
                 }
-                2 -> exporterServices["CSV"]?.generateReport(data, "izlaz.csv", true)
-                3 -> exporterServices["PDF"]?.generateReport(data, "izlaz.pdf", true)
-                4 -> exporterServices["EXCEL"]?.generateReport(data, "izlaz.xlsx", true)
+                2 -> {
+                    println("Usao u csv export services u loadData.")
+                    if(!flagForConfig){
+                        exporterServices["CSV"]?.generateReport(data, "izlazCsvNormal.txt", true)
+                    }
+                    else{
+                        val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
+                        if (inputStream != null) {
+
+                            val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+                            // val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
+                            exporterServices["CSV"]?.generateReport(data, "izlazCsvConfig.csv", true, title = "", summary = "", config = configPath)
+                        } else {
+                            println("Fajl nije pronađen!")
+                        }
+                    }
+                }
+                3 ->  {
+                    println("Usao u pdf export services u loadData.")
+                    if(!flagForConfig){
+                        exporterServices["PDF"]?.generateReport(data, "izlazPdfNormal.pdf", true)
+                    }
+                    else{
+                        val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
+                        if (inputStream != null) {
+
+                            val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+                            // val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
+                            exporterServices["PDF"]?.generateReport(data, "izlazPdfConfig.pdf", true, title = "", summary = "", config = configPath)
+                        } else {
+                            println("Fajl nije pronađen!")
+                        }
+                    }
+                }
+                4 ->  {
+                    println("Usao u excel export services u loadData.")
+                    if(!flagForConfig){
+                        exporterServices["XLS"]?.generateReport(data, "izlazExcelNormal.xls", true)
+                    }
+                    else{
+                        val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
+                        if (inputStream != null) {
+
+                            val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+                            // val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
+                            exporterServices["XLS"]?.generateReport(data, "izlazExcelConfig.xls", true, title = "", summary = "", config = configPath)
+                        } else {
+                            println("Fajl nije pronađen!")
+                        }
+                    }
+                }
             }
         }
     }

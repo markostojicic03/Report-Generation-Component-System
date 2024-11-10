@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.*
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import specification.ReportInterface
+import java.awt.Color
 import java.io.FileOutputStream
 
 class ExcelReport: ReportInterface{
@@ -11,6 +12,9 @@ class ExcelReport: ReportInterface{
     override val formattingFlag: Boolean = true
     override var titleProperty: String = ""
     override var summaryProperty: String = ""
+    override var formattingNameProperty: String? = null
+    override var formattingTextProperty: String? = null
+
     override fun generateReport(
         data: Map<String, List<String>>,
         destination: String,
@@ -74,4 +78,22 @@ class ExcelReport: ReportInterface{
         // Closing the workbook
         workbook.close()
     }
+
+    override fun generateReportWithFormatting(
+        data: Map<String, List<String>>,
+        destination: String,
+        header: Boolean,
+        title: String?,
+        summary: String?,
+        formattingName: String?,
+        formattingText: String?
+    ) {
+        if (!formattingFlag) {
+            throw IllegalArgumentException("Formatting is not valid for this type of format.")
+        }
+        // umesto generateReport ovde staviti logiku za formatiranje excel fajla, to je bukvalno samo izmenjen kod od generateReport jer je potrebno dodati formatiranje za kolone
+        generateReport(data, destination,header, title, summary)
+    }
+
+
 }

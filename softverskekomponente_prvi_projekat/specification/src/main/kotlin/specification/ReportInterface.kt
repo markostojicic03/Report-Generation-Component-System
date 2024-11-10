@@ -7,10 +7,13 @@ import java.sql.ResultSetMetaData
 
 
 interface ReportInterface {
-    abstract val implementationName: String
-    abstract val formattingFlag: Boolean
+    val implementationName: String
+    val formattingFlag: Boolean
     var titleProperty:String
     var summaryProperty:String
+    var formattingNameProperty: String?
+    var formattingTextProperty :String?
+
 
     /**
         IZMENJENA VERZIJA SPECIFIKACIJE TREBA DA SADRZI:
@@ -34,15 +37,15 @@ interface ReportInterface {
 
     fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String){
         var dataAfterConfig = readConfig(data,config)
-        generateReport(dataAfterConfig!!, destination, header, titleProperty, summaryProperty )
+      //  generateReport(dataAfterConfig!!, destination, header, this.titleProperty, this.summaryProperty)
+        generateReportWithFormatting(dataAfterConfig!!, destination, header, this.titleProperty, this.summaryProperty, this.formattingNameProperty, this.formattingTextProperty)
     }
 
     fun generateReport(data: ResultSet, destination: String, header: Boolean, title: String? = null, summary: String? = null){
         val preparedData = prepareData(data)
         generateReport(preparedData, destination, header, title, summary)
     }
-
-   // fun generateReportWithFormatting(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null)
+    fun generateReportWithFormatting(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, formattingName: String? = null, formattingText: String? = null)
 
     /*fun generateReport(){
         calculations(podaci)
@@ -110,14 +113,14 @@ interface ReportInterface {
         val calculationColumns = mutableListOf<Int>()
         var customTitle: String? = null
         var customSummary: String? = null
-//        var formattingType: String? = null
-//        var textForFormatting: String? = null
+        var formattingType: String? = null
+        var textForFormatting: String? = null
 
         val columnsRegex = Regex("""Columns for export:\s*([\d,]+)""")
         val calculationRegex = Regex("""Calculations:\s*(\w+)\(([\d,]+)\)""")
         val titleRegex = Regex("""Title:\s*(.*)""")
         val summaryRegex = Regex("""Summary:\s*(.*)""")
-    //    val formattingRegex = Regex("""Formatting:\s*(\w+)\((\w+)\)""")
+        val formattingRegex = Regex("""Formatting:\s*(\w+)\((\w+)\)""")
 
         for (line in lines) {
             when {
@@ -140,11 +143,11 @@ interface ReportInterface {
                 summaryRegex.matches(line) -> {
                     customSummary = summaryRegex.find(line)?.groups?.get(1)?.value
                 }
-//                formattingRegex.matches(line) -> {
-//                    val match = formattingRegex.find(line)
-//                    formattingType = match?.groups?.get(1)?.value ?: ""
-//                    textForFormatting = match?.groups?.get(2)?.value ?: ""
-//                }
+                formattingRegex.matches(line) -> {
+                    val match = formattingRegex.find(line)
+                    formattingType = match?.groups?.get(1)?.value ?: ""
+                    textForFormatting = match?.groups?.get(2)?.value ?: ""
+                }
             }
         }
 
@@ -160,11 +163,13 @@ interface ReportInterface {
 
         if(calculation =="SUM"){
             val dataAfterSum = sumCalculate(data, columns, calculationColumns)
-//            if((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty() )){
-//                println("Poslat je zeljeni nacin formatiranja.")
-//
-//            }
-//            else println("Nema formatiranja u config fajlu.")
+            if((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty() )){
+                println("Poslat je zeljeni nacin formatiranja.")
+                this.formattingNameProperty = formattingType
+                this.formattingTextProperty = textForFormatting
+
+            }
+            else println("Nema formatiranja u config fajlu.")
             return dataAfterSum
         }
         else if(calculation == "AVG"){

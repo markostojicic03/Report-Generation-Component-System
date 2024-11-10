@@ -137,7 +137,7 @@ fun loadData(flagForConfig : Boolean){
 
                             val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
                             // val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
-                            exporterServices["XLS"]?.generateReport(data, "izlazExcelConfig.xls", true, title = "", summary = "", config = configPath)
+                            exporterServices["XLS"]?.generateReport(data, "izlazExcelConfig.xlsx", true, title = "", summary = "", config = configPath)
                         } else {
                             println("Fajl nije pronađen!")
                         }

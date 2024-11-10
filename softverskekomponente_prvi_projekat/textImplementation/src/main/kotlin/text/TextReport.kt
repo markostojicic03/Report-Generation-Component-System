@@ -8,6 +8,8 @@ class TextReport: ReportInterface {
     override val formattingFlag: Boolean = false
     override var titleProperty: String = ""
     override var summaryProperty: String = ""
+    override var formattingNameProperty: String? = null
+    override var formattingTextProperty: String? = null
 
     override fun generateReport(
         data: Map<String, List<String>>,
@@ -61,4 +63,20 @@ class TextReport: ReportInterface {
             }
         }
     }
+
+    override fun generateReportWithFormatting(
+        data: Map<String, List<String>>,
+        destination: String,
+        header: Boolean,
+        title: String?,
+        summary: String?,
+        formattingName: String?,
+        formattingText: String?
+    ) {
+        if(!formattingFlag){
+            println("Formatting is not valid for this type of format.") // ovde nek izbaci neki exception koji ce da govori isto ovo
+        }
+        generateReport(data, destination, header,title,summary)
+    }
+
 }

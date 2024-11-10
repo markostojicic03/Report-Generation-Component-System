@@ -150,7 +150,8 @@ interface ReportInterface {
             return dataAfterAvg
         }
         else if(calculation == "COUNT"){
-            return null
+            val dataAfterCount = countCalculate(data, columns, calculationColumns)
+            return dataAfterCount
         }
         else{
             return null
@@ -225,12 +226,21 @@ interface ReportInterface {
         return result
     }
 
-    private fun countCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, avgColumns :MutableList<Int>):Map<String, List<String>>?{
+    private fun countCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, countColumns :MutableList<Int>):Map<String, List<String>>?{
 
-        
+        val result = mutableMapOf<String, MutableList<String>>()
+        result["countColumn"] = mutableListOf()
 
-        return null
+        for (i in countColumns) {
+            val columnName = data.keys.elementAt(i)
+            result["countColumn"]?.addAll(data[columnName] ?: emptyList())
+        }
+
+        val numRows = data.values.firstOrNull()?.size ?: 0
+        result["countColumn"]?.add("Count $numRows")
+        println(numRows)
+
+        return result
     }
-
-
 }
+//    /izvorPodataka.json

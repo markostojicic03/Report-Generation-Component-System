@@ -160,6 +160,18 @@ interface ReportInterface {
             val dataAfterCount = countCalculate(data, columns, calculationColumns)
             return dataAfterCount
         }
+        else if (calculation == "SUB"){
+            val dataAfterSub = subCalculate(data, columns, calculationColumns)
+            return dataAfterSub
+        }
+        else if (calculation == "MUL"){
+            val dataAfterMul = mulCalculate(data, columns, calculationColumns)
+            return dataAfterMul
+        }
+        else if (calculation == "DIV"){
+            val dataAfterDiv = divCalculate(data, columns, calculationColumns)
+            return dataAfterDiv
+        }
         else{
             return null
             // mnozenje, deljenje, oduzimanje??
@@ -249,5 +261,107 @@ interface ReportInterface {
 
         return result
     }
+
+    private fun subCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, subColumns :MutableList<Int> ):Map<String, List<String>>?{
+
+        val result = mutableMapOf<String, List<String>>()
+        val filteredData = mutableMapOf<String, List<String>>()
+
+        for(i in configColumns){
+            val columnName = data.keys.elementAt(i)
+            filteredData[columnName] = data[columnName] ?: emptyList()
+        }
+        val subColumnValues = mutableListOf<String>()
+        val numRows = data.values.firstOrNull()?.size ?: 0
+        for (i in 0 until numRows) {
+            var colIndex = 0
+            var sub = 0
+            while (colIndex < subColumns.size - 1) {
+                var columnName = data.keys.elementAt(subColumns.get(colIndex))
+                var value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+                sub = value
+                columnName = data.keys.elementAt(subColumns.get(++colIndex))
+                value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+                sub -= value
+            }
+            subColumnValues.add(sub.toString())
+        }
+
+        result["subColumn"] = subColumnValues
+
+        filteredData.forEach { (key, value) ->
+            result[key] = value
+        }
+
+        return result
+
+    }
+
+    private fun mulCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, muulColumns :MutableList<Int> ):Map<String, List<String>>?{
+
+        val result = mutableMapOf<String, List<String>>()
+        val filteredData = mutableMapOf<String, List<String>>()
+
+        for(i in configColumns){
+            val columnName = data.keys.elementAt(i)
+            filteredData[columnName] = data[columnName] ?: emptyList()
+        }
+        val mulColumnValues = mutableListOf<String>()
+        val numRows = data.values.firstOrNull()?.size ?: 0
+        for (i in 0 until numRows) {
+            var mul = 1.0
+            for (colIndex in muulColumns) {
+                val columnName = data.keys.elementAt(colIndex)
+                val value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+                mul *= value
+            }
+            mulColumnValues.add(mul.toString())
+        }
+
+        result["mulColumn"] = mulColumnValues
+
+        filteredData.forEach { (key, value) ->
+            result[key] = value
+        }
+
+        return result
+
+    }
+
+    private fun divCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, divColumns :MutableList<Int> ):Map<String, List<String>>?{
+
+        val result = mutableMapOf<String, List<String>>()
+        val filteredData = mutableMapOf<String, List<String>>()
+
+        for(i in configColumns){
+            val columnName = data.keys.elementAt(i)
+            filteredData[columnName] = data[columnName] ?: emptyList()
+        }
+        val divColumnValues = mutableListOf<String>()
+        val numRows = data.values.firstOrNull()?.size ?: 0
+        for (i in 0 until numRows) {
+            var colIndex = 0
+            var div = 0.0
+            while (colIndex < divColumns.size - 1) {
+                var columnName = data.keys.elementAt(divColumns.get(colIndex))
+                var value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+                div = value.toDouble()
+                columnName = data.keys.elementAt(divColumns.get(++colIndex))
+                value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+                div /= value
+            }
+            divColumnValues.add(div.toString())
+        }
+
+        result["divColumn"] = divColumnValues
+
+        filteredData.forEach { (key, value) ->
+            result[key] = value
+        }
+
+        return result
+
+    }
+
 }
 //    /izvorPodataka.json

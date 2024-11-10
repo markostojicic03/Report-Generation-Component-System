@@ -45,6 +45,7 @@ fun loadData(flagForConfig : Boolean){
     println("1. TXT")
     println("2. Database")
     println("3. Json")
+    println("--------------------------------")
     print("Choose the source of your data:")
     var response = scanner.nextInt()
     println("--------------------------------")
@@ -68,6 +69,7 @@ fun loadData(flagForConfig : Boolean){
             println("2. CSV")
             println("3. PDF")
             println("4. EXCEL")
+            println("-----------------------------------")
             print("Choose your format: ")
             var response3 = scanner.nextInt()
             println("---------------------------------")
@@ -83,6 +85,7 @@ fun loadData(flagForConfig : Boolean){
                         if (inputStream != null) {
 
                             val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+                           // val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
                             exporterServices["TXT"]?.generateReport(data, "izlaz.txt", true, title = "", summary = "", config = configPath)
                         } else {
                             println("Fajl nije pronađen!")

@@ -6,6 +6,8 @@ import java.io.File
 class CsvReport: ReportInterface {
     override val implementationName: String = "CSV"
     override val formattingFlag: Boolean = false
+    override var titleProperty: String = ""
+    override var summaryProperty: String = ""
 
     override fun generateReport(
         data: Map<String, List<String>>,

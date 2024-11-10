@@ -9,6 +9,8 @@ import java.sql.ResultSetMetaData
 interface ReportInterface {
     abstract val implementationName: String
     abstract val formattingFlag: Boolean
+    var titleProperty:String
+    var summaryProperty:String
 
     /**
         IZMENJENA VERZIJA SPECIFIKACIJE TREBA DA SADRZI:
@@ -32,7 +34,7 @@ interface ReportInterface {
 
     fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String){
         var dataAfterConfig = readConfig(data,config)
-        generateReport(dataAfterConfig!!, destination, header, title, summary )
+        generateReport(dataAfterConfig!!, destination, header, titleProperty, summaryProperty )
     }
 
     fun generateReport(data: ResultSet, destination: String, header: Boolean, title: String? = null, summary: String? = null){
@@ -113,6 +115,7 @@ interface ReportInterface {
         val titleRegex = Regex("""Title:\s*(.*)""")
         val summaryRegex = Regex("""Summary:\s*(.*)""")
 
+
         for (line in lines) {
             when {
                 columnsRegex.matches(line) -> {
@@ -141,8 +144,12 @@ interface ReportInterface {
         println("Konfigurisane kolone: $columns")
         println("Kalkulacija: $calculation za kolone $calculationColumns")
 
+        this.titleProperty = customTitle!!
+        this.summaryProperty = customSummary!!
+
         if(calculation =="SUM"){
             val dataAfterSum = sumCalculate(data, columns, calculationColumns)
+
             return dataAfterSum
         }
         else if(calculation == "AVG"){

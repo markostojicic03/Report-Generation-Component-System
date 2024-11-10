@@ -9,7 +9,8 @@ import java.io.FileOutputStream
 class ExcelReport: ReportInterface{
     override val implementationName: String = "XLS"
     override val formattingFlag: Boolean = true
-
+    override var titleProperty: String = ""
+    override var summaryProperty: String = ""
     override fun generateReport(
         data: Map<String, List<String>>,
         destination: String,

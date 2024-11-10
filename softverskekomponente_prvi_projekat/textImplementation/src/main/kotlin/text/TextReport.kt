@@ -6,6 +6,8 @@ import java.io.File
 class TextReport: ReportInterface {
     override val implementationName: String = "TXT"
     override val formattingFlag: Boolean = false
+    override var titleProperty: String = ""
+    override var summaryProperty: String = ""
 
     override fun generateReport(
         data: Map<String, List<String>>,

@@ -83,7 +83,7 @@ fun loadData(flagForConfig : Boolean){
                         if (inputStream != null) {
 
                             val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
-                            exporterServices["TXT"]?.generateReport(data, "izlaz.txt", true, title = null, summary = null, config = configPath)
+                            exporterServices["TXT"]?.generateReport(data, "izlaz.txt", true, title = "", summary = "", config = configPath)
                         } else {
                             println("Fajl nije pronađen!")
                         }

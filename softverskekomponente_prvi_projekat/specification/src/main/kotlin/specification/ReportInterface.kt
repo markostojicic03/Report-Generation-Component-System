@@ -115,9 +115,11 @@ interface ReportInterface {
         var customSummary: String? = null
         var formattingType: String? = null
         var textForFormatting: String? = null
+        var sign_Operator: String? = null
+        var numberForOperation: Int? = null
 
         val columnsRegex = Regex("""Columns for export:\s*([\d,]+)""")
-        val calculationRegex = Regex("""Calculations:\s*(\w+)\(([\d,]+)\)""")
+        val calculationRegex = Regex("""Calculations:\s*(\w+)\((\d+),\s*([<>=]+)?\s*(\d+)?\)""")
         val titleRegex = Regex("""Title:\s*(.*)""")
         val summaryRegex = Regex("""Summary:\s*(.*)""")
         val formattingRegex = Regex("""Formatting:\s*(\w+)\((\w+)\)""")
@@ -133,8 +135,14 @@ interface ReportInterface {
                 calculationRegex.matches(line) -> {
                     val match = calculationRegex.find(line)
                     calculation = match?.groups?.get(1)?.value
-                    match?.groups?.get(2)?.value?.split(",")?.forEach {
-                        calculationColumns.add(it.trim().toInt())
+                    if (calculation == "COUNT") {
+                        match?.groups?.get(2)?.value?.toInt()?.let { calculationColumns.add(it) }
+                        sign_Operator = match?.groups?.get(3)?.value
+                        numberForOperation = match?.groups?.get(4)?.value?.toInt()
+                    } else {
+                        match?.groups?.get(2)?.value?.split(",")?.forEach {
+                            calculationColumns.add(it.trim().toInt())
+                        }
                     }
                 }
                 titleRegex.matches(line) -> {
@@ -177,7 +185,7 @@ interface ReportInterface {
             return dataAfterAvg
         }
         else if(calculation == "COUNT"){
-            val dataAfterCount = countCalculate(data, columns, calculationColumns)
+            val dataAfterCount = countCalculate(data, columns, calculationColumns, sign_Operator, numberForOperation)
             return dataAfterCount
         }
         else if (calculation == "SUB"){
@@ -265,22 +273,38 @@ interface ReportInterface {
         return result
     }
 
-    private fun countCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, countColumns :MutableList<Int>):Map<String, List<String>>?{
+    private fun countCalculate(data: Map<String, List<String>>, configColumns: MutableList<Int>, countColumns: MutableList<Int>, operand: String?, numberForOperation: Int?): Map<String, List<String>>? {
 
         val result = mutableMapOf<String, MutableList<String>>()
         result["countColumn"] = mutableListOf()
 
-        for (i in countColumns) {
-            val columnName = data.keys.elementAt(i)
-            result["countColumn"]?.addAll(data[columnName] ?: emptyList())
+        val columnName = data.keys.elementAt(countColumns.get(0))
+        val columnData = data[columnName] ?: emptyList()
+
+        columnData.forEach { value ->
+            val intValue = value.toIntOrNull()
+            if (intValue != null && operand != null && numberForOperation != null) {
+                val conditionMet = when (operand) {
+                    "<" -> intValue < numberForOperation
+                    ">" -> intValue > numberForOperation
+                    "<=" -> intValue <= numberForOperation
+                    ">=" -> intValue >= numberForOperation
+                    "=" -> intValue == numberForOperation
+                    else -> false
+                }
+
+                if (conditionMet) {
+                    result["countColumn"]?.add(value)
+                }
+            }
         }
 
-        val numRows = data.values.firstOrNull()?.size ?: 0
+        val numRows = result["countColumn"]?.size ?: 0
         result["countColumn"]?.add("Count $numRows")
         println(numRows)
-
         return result
     }
+
 
     private fun subCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, subColumns :MutableList<Int> ):Map<String, List<String>>?{
 
@@ -384,4 +408,39 @@ interface ReportInterface {
     }
 
 }
+/*
+val result = mutableMapOf<String, MutableList<String>>()
+        result["countColumn"] = mutableListOf()
+
+        //for (i in countColumns) {
+            val columnName = data.keys.elementAt(countColumns.get(0))
+            //result["countColumn"]?.addAll(data[columnName] ?: emptyList())
+            val columnData = data[columnName] ?: emptyList()
+
+            columnData.forEach { value ->
+                val intValue = value.toIntOrNull() // Konvertujemo vrednost u Int ako je moguće
+                if (intValue != null && operand != null && numberForOperation != null) {
+                    val conditionMet = when (operand) {
+                        "<" -> intValue < numberForOperation
+                        ">" -> intValue > numberForOperation
+                        "<=" -> intValue <= numberForOperation
+                        ">=" -> intValue >= numberForOperation
+                        "=" -> intValue == numberForOperation
+                        else -> false
+                    }
+
+                    // Ako uslov zadovoljava, dodajemo vrednost u rezultat
+                    if (conditionMet) {
+                        result[columnName]?.add(value)
+                    }
+                }
+            }
+        //}
+
+        val numRows = result["countColumn"]?.size ?: 0
+        result["countColumn"]?.add("Count $numRows")
+        println(numRows)
+        return result
+    }
+ */
 //    /izvorPodataka.json

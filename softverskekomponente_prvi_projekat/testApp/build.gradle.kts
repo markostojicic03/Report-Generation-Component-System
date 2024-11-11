@@ -17,6 +17,7 @@ dependencies {
     runtimeOnly(project(":excelImplementation"))
     runtimeOnly(project(":pdfImplementation"))
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("mysql:mysql-connector-java:8.0.33")
     testImplementation(kotlin("test"))
 
 }

@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import specification.ReportInterface
 import java.io.InputStreamReader
+import java.sql.DriverManager
 import java.util.*
 
 data class Schedule(
@@ -55,7 +56,102 @@ fun loadData(flagForConfig : Boolean){
             var response2 = scanner.next()
 
         }
-        2 -> print("")
+        2 -> {
+            val url = "jdbc:mysql://localhost:3306/raspored"
+            val user = "root"
+            val password = ""
+            val data = mutableMapOf<String, MutableList<String>>()
+            DriverManager.getConnection(url, user, password).use { connection ->
+                val statement = connection.createStatement()
+                val resultSet = statement.executeQuery("SELECT * FROM raspored")
+
+                val columnCount = resultSet.metaData.columnCount
+                while (resultSet.next()) {
+                    for (i in 1..columnCount) {
+                        val columnName = resultSet.metaData.getColumnName(i)
+                        if (columnName !in data) {
+                            data[columnName] = mutableListOf()
+                        }
+                        data[columnName]?.add(resultSet.getString(i))
+                    }
+                }
+            }
+            println("1. TXT")
+            println("2. CSV")
+            println("3. PDF")
+            println("4. EXCEL")
+            println("-----------------------------------")
+            print("Choose your format: ")
+            var response3 = scanner.nextInt()
+            println("---------------------------------")
+            when(response3){
+                1 -> {
+                    if(!flagForConfig){
+                        exporterServices["TXT"]?.generateReport(data, "izlazCsvNormal.txt", true)
+                    }
+                    else{
+                        val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
+                        if (inputStream != null) {
+
+                            //val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+                            val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
+                            exporterServices["TXT"]?.generateReport(data, "izlazTxtConfig.txt", true, title = "", summary = "", config = configPath)
+                        } else {
+                            println("Fajl nije pronađen!")
+                        }
+                    }
+                }
+                2 -> {
+                    if(!flagForConfig){
+                        exporterServices["CSV"]?.generateReport(data, "izlazCsvNormal.txt", true)
+                    }
+                    else{
+                        val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
+                        if (inputStream != null) {
+
+                            //val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+                            val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
+                            exporterServices["CSV"]?.generateReport(data, "izlazCsvConfig.csv", true, title = "", summary = "", config = configPath)
+                        } else {
+                            println("Fajl nije pronađen!")
+                        }
+                    }
+                }
+                3 -> {
+                    if(!flagForConfig){
+                        exporterServices["PDF"]?.generateReport(data, "izlazPdfNormal.pdf", true)
+                    }
+                    else{
+                        val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
+                        if (inputStream != null) {
+
+                            //val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+                            val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
+                            exporterServices["PDF"]?.generateReport(data, "izlazPdfConfig.pdf", true, title = "", summary = "", config = configPath)
+                        } else {
+                            println("Fajl nije pronađen!")
+                        }
+                    }
+                }
+                4 -> {
+                    if(!flagForConfig){
+                        exporterServices["XLS"]?.generateReport(data, "izlazExcelNormal.xls", true)
+                    }
+                    else{
+                        val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
+                        if (inputStream != null) {
+
+                            //val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+                            val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
+                            exporterServices["XLS"]?.generateReport(data, "izlazExcelConfig.xlsx", true, title = "", summary = "", config = configPath)
+                        } else {
+                            println("Fajl nije pronađen!")
+                        }
+                    }
+                }
+            }
+
+        }
         3 -> {
             print("Write your json path: ")
             var response2 = scanner.next()

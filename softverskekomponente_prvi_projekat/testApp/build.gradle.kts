@@ -1,5 +1,7 @@
 plugins {
     kotlin("jvm")
+    application
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "org.example"
@@ -21,6 +23,24 @@ dependencies {
     testImplementation(kotlin("test"))
 
 }
+
+application{
+    mainClass.set("testApp.MainKt")
+}
+
+tasks.shadowJar {
+    archiveClassifier.set("all")
+    manifest {
+        attributes["Main-Class"] = "com.example.MainKt"
+    }
+    mergeServiceFiles()
+}
+
+tasks.build{
+    dependsOn(tasks.shadowJar)
+}
+
+
 
 tasks.test {
     useJUnitPlatform()

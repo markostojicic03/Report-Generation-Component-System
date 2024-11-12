@@ -1,5 +1,6 @@
 package specification
 
+import calculation.Calculation
 import java.awt.Color
 import java.io.File
 import java.sql.ResultSet
@@ -37,7 +38,6 @@ interface ReportInterface {
 
     fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String){
         var dataAfterConfig = readConfig(data,config)
-      //  generateReport(dataAfterConfig!!, destination, header, this.titleProperty, this.summaryProperty)
         generateReportWithFormatting(dataAfterConfig!!, destination, header, this.titleProperty, this.summaryProperty, this.formattingNameProperty, this.formattingTextProperty)
     }
 
@@ -133,14 +133,18 @@ interface ReportInterface {
                     }
                 }
                 calculationRegex.matches(line) -> {
+                    println("Usao u calculationregex matches line.")
                     val match = calculationRegex.find(line)
                     calculation = match?.groups?.get(1)?.value
                     if (calculation == "COUNT") {
+                        println("Usao u if-count unutar calculation regexa.")
                         match?.groups?.get(2)?.value?.toInt()?.let { calculationColumns.add(it) }
                         sign_Operator = match?.groups?.get(3)?.value
                         numberForOperation = match?.groups?.get(4)?.value?.toInt()
                     } else {
+                        println("Usao u else-count unutar calculation regexa.")
                         match?.groups?.get(2)?.value?.split(",")?.forEach {
+                            println("Match groups unutar else iz calculation regexa")
                             calculationColumns.add(it.trim().toInt())
                         }
                     }
@@ -168,9 +172,10 @@ interface ReportInterface {
 
 
 
-
         if(calculation =="SUM"){
-            val dataAfterSum = sumCalculate(data, columns, calculationColumns)
+            println("Usao u sum")
+            var calculationObject: Calculation = Calculation(data,columns, calculationColumns)
+            val dataAfterSum = calculationObject.sumCalculate()
             if((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty() )){
                 println("Poslat je zeljeni nacin formatiranja.")
                 this.formattingNameProperty = formattingType
@@ -181,23 +186,28 @@ interface ReportInterface {
             return dataAfterSum
         }
         else if(calculation == "AVG"){
-            val dataAfterAvg = avgCalculate(data, columns, calculationColumns)
+            var calculationObject: Calculation = Calculation(data,columns, calculationColumns)
+            val dataAfterAvg = calculationObject.avgCalculate()
             return dataAfterAvg
         }
         else if(calculation == "COUNT"){
-            val dataAfterCount = countCalculate(data, columns, calculationColumns, sign_Operator, numberForOperation)
+            var calculationObject: Calculation = Calculation(data,columns, calculationColumns)
+            val dataAfterCount = calculationObject.countCalculate(sign_Operator, numberForOperation)
             return dataAfterCount
         }
         else if (calculation == "SUB"){
-            val dataAfterSub = subCalculate(data, columns, calculationColumns)
+            var calculationObject: Calculation = Calculation(data,columns, calculationColumns)
+            val dataAfterSub = calculationObject.subCalculate()
             return dataAfterSub
         }
         else if (calculation == "MUL"){
-            val dataAfterMul = mulCalculate(data, columns, calculationColumns)
+            var calculationObject: Calculation = Calculation(data,columns, calculationColumns)
+            val dataAfterMul = calculationObject.mulCalculate()
             return dataAfterMul
         }
         else if (calculation == "DIV"){
-            val dataAfterDiv = divCalculate(data, columns, calculationColumns)
+            var calculationObject: Calculation = Calculation(data,columns, calculationColumns)
+            val dataAfterDiv = calculationObject.divCalculate()
             return dataAfterDiv
         }
         else{
@@ -208,204 +218,204 @@ interface ReportInterface {
 
     }
 
-    private fun sumCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, sumColumns :MutableList<Int> ):Map<String, List<String>>?{
-
-        val result = mutableMapOf<String, List<String>>()
-        val filteredData = mutableMapOf<String, List<String>>()
-
-        for(i in configColumns){
-            val columnName = data.keys.elementAt(i)
-            filteredData[columnName] = data[columnName] ?: emptyList()
-        }
-        val sumColumnValues = mutableListOf<String>()
-        val numRows = data.values.firstOrNull()?.size ?: 0
-        for (i in 0 until numRows) {
-            var sum = 0
-            for (colIndex in sumColumns) {
-                val columnName = data.keys.elementAt(colIndex)
-                val value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
-                sum += value
-            }
-            sumColumnValues.add(sum.toString())
-        }
-
-        result["sumColumn"] = sumColumnValues
-
-        filteredData.forEach { (key, value) ->
-            result[key] = value
-        }
-
-        return result
-
-    }
-
-    private fun avgCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, avgColumns :MutableList<Int>):Map<String, List<String>>?{
-
-        val result = mutableMapOf<String, List<String>>()
-        val filteredData = mutableMapOf<String, List<String>>()
-
-        for(i in configColumns){
-            val columnName = data.keys.elementAt(i)
-            filteredData[columnName] = data[columnName] ?: emptyList()
-        }
-        val avgColumnValues = mutableListOf<String>()
-
-        val numRows = data.values.firstOrNull()?.size ?: 0
-        for (i in 0 until numRows) {
-            var numer = 0;
-            var sum = 0
-            for (colIndex in avgColumns) {
-                val columnName = data.keys.elementAt(colIndex)
-                val value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
-                sum += value
-                numer++
-            }
-            val avg = (sum * 1.0) / (numer * 1.0)
-            avgColumnValues.add(avg.toString())
-        }
-
-        result["avgColumn"] = avgColumnValues
-
-        filteredData.forEach { (key, value) ->
-            result[key] = value
-        }
-
-        return result
-    }
-
-    private fun countCalculate(data: Map<String, List<String>>, configColumns: MutableList<Int>, countColumns: MutableList<Int>, operand: String?, numberForOperation: Int?): Map<String, List<String>>? {
-
-        val result = mutableMapOf<String, MutableList<String>>()
-        result["countColumn"] = mutableListOf()
-
-        val columnName = data.keys.elementAt(countColumns.get(0))
-        val columnData = data[columnName] ?: emptyList()
-
-        columnData.forEach { value ->
-            val intValue = value.toIntOrNull()
-            if (intValue != null && operand != null && numberForOperation != null) {
-                val conditionMet = when (operand) {
-                    "<" -> intValue < numberForOperation
-                    ">" -> intValue > numberForOperation
-                    "<=" -> intValue <= numberForOperation
-                    ">=" -> intValue >= numberForOperation
-                    "=" -> intValue == numberForOperation
-                    else -> false
-                }
-
-                if (conditionMet) {
-                    result["countColumn"]?.add(value)
-                }
-            }
-        }
-
-        val numRows = result["countColumn"]?.size ?: 0
-        result["countColumn"]?.add("Count $numRows")
-        println(numRows)
-        return result
-    }
-
-
-    private fun subCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, subColumns :MutableList<Int> ):Map<String, List<String>>?{
-
-        val result = mutableMapOf<String, List<String>>()
-        val filteredData = mutableMapOf<String, List<String>>()
-
-        for(i in configColumns){
-            val columnName = data.keys.elementAt(i)
-            filteredData[columnName] = data[columnName] ?: emptyList()
-        }
-        val subColumnValues = mutableListOf<String>()
-        val numRows = data.values.firstOrNull()?.size ?: 0
-        for (i in 0 until numRows) {
-            var colIndex = 0
-            var sub = 0
-            while (colIndex < subColumns.size - 1) {
-                var columnName = data.keys.elementAt(subColumns.get(colIndex))
-                var value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
-                sub = value
-                columnName = data.keys.elementAt(subColumns.get(++colIndex))
-                value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
-                sub -= value
-            }
-            subColumnValues.add(sub.toString())
-        }
-
-        result["subColumn"] = subColumnValues
-
-        filteredData.forEach { (key, value) ->
-            result[key] = value
-        }
-
-        return result
-
-    }
-
-    private fun mulCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, muulColumns :MutableList<Int> ):Map<String, List<String>>?{
-
-        val result = mutableMapOf<String, List<String>>()
-        val filteredData = mutableMapOf<String, List<String>>()
-
-        for(i in configColumns){
-            val columnName = data.keys.elementAt(i)
-            filteredData[columnName] = data[columnName] ?: emptyList()
-        }
-        val mulColumnValues = mutableListOf<String>()
-        val numRows = data.values.firstOrNull()?.size ?: 0
-        for (i in 0 until numRows) {
-            var mul = 1.0
-            for (colIndex in muulColumns) {
-                val columnName = data.keys.elementAt(colIndex)
-                val value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
-                mul *= value
-            }
-            mulColumnValues.add(mul.toString())
-        }
-
-        result["mulColumn"] = mulColumnValues
-
-        filteredData.forEach { (key, value) ->
-            result[key] = value
-        }
-
-        return result
-
-    }
-
-    private fun divCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, divColumns :MutableList<Int> ):Map<String, List<String>>?{
-
-        val result = mutableMapOf<String, List<String>>()
-        val filteredData = mutableMapOf<String, List<String>>()
-
-        for(i in configColumns){
-            val columnName = data.keys.elementAt(i)
-            filteredData[columnName] = data[columnName] ?: emptyList()
-        }
-        val divColumnValues = mutableListOf<String>()
-        val numRows = data.values.firstOrNull()?.size ?: 0
-        for (i in 0 until numRows) {
-            var colIndex = 0
-            var div = 0.0
-            while (colIndex < divColumns.size - 1) {
-                var columnName = data.keys.elementAt(divColumns.get(colIndex))
-                var value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
-                div = value.toDouble()
-                columnName = data.keys.elementAt(divColumns.get(++colIndex))
-                value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
-                div /= value
-            }
-            divColumnValues.add(div.toString())
-        }
-
-        result["divColumn"] = divColumnValues
-
-        filteredData.forEach { (key, value) ->
-            result[key] = value
-        }
-
-        return result
-
-    }
+//    private fun sumCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, sumColumns :MutableList<Int> ):Map<String, List<String>>?{
+//
+//        val result = mutableMapOf<String, List<String>>()
+//        val filteredData = mutableMapOf<String, List<String>>()
+//
+//        for(i in configColumns){
+//            val columnName = data.keys.elementAt(i)
+//            filteredData[columnName] = data[columnName] ?: emptyList()
+//        }
+//        val sumColumnValues = mutableListOf<String>()
+//        val numRows = data.values.firstOrNull()?.size ?: 0
+//        for (i in 0 until numRows) {
+//            var sum = 0
+//            for (colIndex in sumColumns) {
+//                val columnName = data.keys.elementAt(colIndex)
+//                val value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+//                sum += value
+//            }
+//            sumColumnValues.add(sum.toString())
+//        }
+//
+//        result["sumColumn"] = sumColumnValues
+//
+//        filteredData.forEach { (key, value) ->
+//            result[key] = value
+//        }
+//
+//        return result
+//
+//    }
+//
+//    private fun avgCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, avgColumns :MutableList<Int>):Map<String, List<String>>?{
+//
+//        val result = mutableMapOf<String, List<String>>()
+//        val filteredData = mutableMapOf<String, List<String>>()
+//
+//        for(i in configColumns){
+//            val columnName = data.keys.elementAt(i)
+//            filteredData[columnName] = data[columnName] ?: emptyList()
+//        }
+//        val avgColumnValues = mutableListOf<String>()
+//
+//        val numRows = data.values.firstOrNull()?.size ?: 0
+//        for (i in 0 until numRows) {
+//            var numer = 0;
+//            var sum = 0
+//            for (colIndex in avgColumns) {
+//                val columnName = data.keys.elementAt(colIndex)
+//                val value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+//                sum += value
+//                numer++
+//            }
+//            val avg = (sum * 1.0) / (numer * 1.0)
+//            avgColumnValues.add(avg.toString())
+//        }
+//
+//        result["avgColumn"] = avgColumnValues
+//
+//        filteredData.forEach { (key, value) ->
+//            result[key] = value
+//        }
+//
+//        return result
+//    }
+//
+//    private fun countCalculate(data: Map<String, List<String>>, configColumns: MutableList<Int>, countColumns: MutableList<Int>, operand: String?, numberForOperation: Int?): Map<String, List<String>>? {
+//
+//        val result = mutableMapOf<String, MutableList<String>>()
+//        result["countColumn"] = mutableListOf()
+//
+//        val columnName = data.keys.elementAt(countColumns.get(0))
+//        val columnData = data[columnName] ?: emptyList()
+//
+//        columnData.forEach { value ->
+//            val intValue = value.toIntOrNull()
+//            if (intValue != null && operand != null && numberForOperation != null) {
+//                val conditionMet = when (operand) {
+//                    "<" -> intValue < numberForOperation
+//                    ">" -> intValue > numberForOperation
+//                    "<=" -> intValue <= numberForOperation
+//                    ">=" -> intValue >= numberForOperation
+//                    "=" -> intValue == numberForOperation
+//                    else -> false
+//                }
+//
+//                if (conditionMet) {
+//                    result["countColumn"]?.add(value)
+//                }
+//            }
+//        }
+//
+//        val numRows = result["countColumn"]?.size ?: 0
+//        result["countColumn"]?.add("Count $numRows")
+//        println(numRows)
+//        return result
+//    }
+//
+//
+//    private fun subCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, subColumns :MutableList<Int> ):Map<String, List<String>>?{
+//
+//        val result = mutableMapOf<String, List<String>>()
+//        val filteredData = mutableMapOf<String, List<String>>()
+//
+//        for(i in configColumns){
+//            val columnName = data.keys.elementAt(i)
+//            filteredData[columnName] = data[columnName] ?: emptyList()
+//        }
+//        val subColumnValues = mutableListOf<String>()
+//        val numRows = data.values.firstOrNull()?.size ?: 0
+//        for (i in 0 until numRows) {
+//            var colIndex = 0
+//            var sub = 0
+//            while (colIndex < subColumns.size - 1) {
+//                var columnName = data.keys.elementAt(subColumns.get(colIndex))
+//                var value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+//                sub = value
+//                columnName = data.keys.elementAt(subColumns.get(++colIndex))
+//                value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+//                sub -= value
+//            }
+//            subColumnValues.add(sub.toString())
+//        }
+//
+//        result["subColumn"] = subColumnValues
+//
+//        filteredData.forEach { (key, value) ->
+//            result[key] = value
+//        }
+//
+//        return result
+//
+//    }
+//
+//    private fun mulCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, muulColumns :MutableList<Int> ):Map<String, List<String>>?{
+//
+//        val result = mutableMapOf<String, List<String>>()
+//        val filteredData = mutableMapOf<String, List<String>>()
+//
+//        for(i in configColumns){
+//            val columnName = data.keys.elementAt(i)
+//            filteredData[columnName] = data[columnName] ?: emptyList()
+//        }
+//        val mulColumnValues = mutableListOf<String>()
+//        val numRows = data.values.firstOrNull()?.size ?: 0
+//        for (i in 0 until numRows) {
+//            var mul = 1.0
+//            for (colIndex in muulColumns) {
+//                val columnName = data.keys.elementAt(colIndex)
+//                val value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+//                mul *= value
+//            }
+//            mulColumnValues.add(mul.toString())
+//        }
+//
+//        result["mulColumn"] = mulColumnValues
+//
+//        filteredData.forEach { (key, value) ->
+//            result[key] = value
+//        }
+//
+//        return result
+//
+//    }
+//
+//    private fun divCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, divColumns :MutableList<Int> ):Map<String, List<String>>?{
+//
+//        val result = mutableMapOf<String, List<String>>()
+//        val filteredData = mutableMapOf<String, List<String>>()
+//
+//        for(i in configColumns){
+//            val columnName = data.keys.elementAt(i)
+//            filteredData[columnName] = data[columnName] ?: emptyList()
+//        }
+//        val divColumnValues = mutableListOf<String>()
+//        val numRows = data.values.firstOrNull()?.size ?: 0
+//        for (i in 0 until numRows) {
+//            var colIndex = 0
+//            var div = 0.0
+//            while (colIndex < divColumns.size - 1) {
+//                var columnName = data.keys.elementAt(divColumns.get(colIndex))
+//                var value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+//                div = value.toDouble()
+//                columnName = data.keys.elementAt(divColumns.get(++colIndex))
+//                value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+//                div /= value
+//            }
+//            divColumnValues.add(div.toString())
+//        }
+//
+//        result["divColumn"] = divColumnValues
+//
+//        filteredData.forEach { (key, value) ->
+//            result[key] = value
+//        }
+//
+//        return result
+//
+//    }
 
 }
 /*

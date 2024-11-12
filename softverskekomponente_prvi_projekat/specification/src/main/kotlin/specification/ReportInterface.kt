@@ -408,39 +408,4 @@ interface ReportInterface {
     }
 
 }
-/*
-val result = mutableMapOf<String, MutableList<String>>()
-        result["countColumn"] = mutableListOf()
-
-        //for (i in countColumns) {
-            val columnName = data.keys.elementAt(countColumns.get(0))
-            //result["countColumn"]?.addAll(data[columnName] ?: emptyList())
-            val columnData = data[columnName] ?: emptyList()
-
-            columnData.forEach { value ->
-                val intValue = value.toIntOrNull() // Konvertujemo vrednost u Int ako je moguće
-                if (intValue != null && operand != null && numberForOperation != null) {
-                    val conditionMet = when (operand) {
-                        "<" -> intValue < numberForOperation
-                        ">" -> intValue > numberForOperation
-                        "<=" -> intValue <= numberForOperation
-                        ">=" -> intValue >= numberForOperation
-                        "=" -> intValue == numberForOperation
-                        else -> false
-                    }
-
-                    // Ako uslov zadovoljava, dodajemo vrednost u rezultat
-                    if (conditionMet) {
-                        result[columnName]?.add(value)
-                    }
-                }
-            }
-        //}
-
-        val numRows = result["countColumn"]?.size ?: 0
-        result["countColumn"]?.add("Count $numRows")
-        println(numRows)
-        return result
-    }
- */
 //    /izvorPodataka.json

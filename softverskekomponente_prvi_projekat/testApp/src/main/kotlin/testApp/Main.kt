@@ -1,8 +1,9 @@
-package org.example
+package org.example.testApp
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import specification.ReportInterface
+import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.sql.DriverManager
 import java.util.*
@@ -57,11 +58,19 @@ fun loadData(flagForConfig : Boolean){
 
         }
         2 -> {
-            val url = "jdbc:mysql://localhost:3306/raspored"
+            print("Write path to your database: ")
+            var urlSc = scanner.next()
+            //val url = "jdbc:mysql://localhost:3306/raspored"
+            print("Write your user name: ")
+            var userSc = scanner.next()
             val user = "root"
+            print("Write your password: ")
+            var passwordSc = readlnOrNull()
+            if (passwordSc == null)
+                passwordSc = ""
             val password = ""
             val data = mutableMapOf<String, MutableList<String>>()
-            DriverManager.getConnection(url, user, password).use { connection ->
+            DriverManager.getConnection(urlSc, userSc, passwordSc.toString()).use { connection ->
                 val statement = connection.createStatement()
                 val resultSet = statement.executeQuery("SELECT * FROM raspored")
 

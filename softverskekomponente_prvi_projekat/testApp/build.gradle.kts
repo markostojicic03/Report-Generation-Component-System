@@ -28,10 +28,11 @@ application{
     mainClass.set("testApp.MainKt")
 }
 
+
 tasks.shadowJar {
     archiveClassifier.set("all")
     manifest {
-        attributes["Main-Class"] = "com.example.MainKt"
+        attributes["Main-Class"] = application.mainClass.get()
     }
     mergeServiceFiles()
 }

@@ -1,5 +1,5 @@
 Columns for export: 1,2,3,4,5,6
-Calculations: COUNT(2,>2)
+Calculations: SUM(2,3)
 Title: NaslovNovi
 Summary: ZakljucakNovi
 Formatting: Bold(1)

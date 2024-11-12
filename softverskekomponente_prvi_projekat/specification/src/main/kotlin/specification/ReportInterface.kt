@@ -119,7 +119,7 @@ interface ReportInterface {
         var numberForOperation: Int? = null
 
         val columnsRegex = Regex("""Columns for export:\s*([\d,]+)""")
-        val calculationRegex = Regex("""Calculations:\s*(\w+)\((\d+),\s*([<>=]+)?\s*(\d+)?\)""")
+        val calculationRegex = Regex("""Calculations:\s*(\w+)\((\d+(?:,(?:\d+|[<>=]\d+))*)\s*(?:([<>=]+)\s*(\d+))?\)""")
         val titleRegex = Regex("""Title:\s*(.*)""")
         val summaryRegex = Regex("""Summary:\s*(.*)""")
         val formattingRegex = Regex("""Formatting:\s*(\w+)\((\w+)\)""")
@@ -133,18 +133,20 @@ interface ReportInterface {
                     }
                 }
                 calculationRegex.matches(line) -> {
-                    println("Usao u calculationregex matches line.")
                     val match = calculationRegex.find(line)
                     calculation = match?.groups?.get(1)?.value
                     if (calculation == "COUNT") {
-                        println("Usao u if-count unutar calculation regexa.")
-                        match?.groups?.get(2)?.value?.toInt()?.let { calculationColumns.add(it) }
-                        sign_Operator = match?.groups?.get(3)?.value
-                        numberForOperation = match?.groups?.get(4)?.value?.toInt()
+                        match?.groups?.get(2)?.value?.split(",")?.forEach { part ->
+                            when {
+                                part.matches(Regex("""\d+""")) -> calculationColumns.add(part.toInt())
+                                part.matches(Regex("""[<>=]\d+""")) -> {
+                                    sign_Operator = part.first().toString()
+                                    numberForOperation = part.drop(1).toInt()
+                                }
+                            }
+                        }
                     } else {
-                        println("Usao u else-count unutar calculation regexa.")
                         match?.groups?.get(2)?.value?.split(",")?.forEach {
-                            println("Match groups unutar else iz calculation regexa")
                             calculationColumns.add(it.trim().toInt())
                         }
                     }
@@ -174,6 +176,8 @@ interface ReportInterface {
 
         if(calculation =="SUM"){
             println("Usao u sum")
+            println(calculationColumns.toString())
+            println(columns.toString())
             var calculationObject: Calculation = Calculation(data,columns, calculationColumns)
             val dataAfterSum = calculationObject.sumCalculate()
             if((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty() )){

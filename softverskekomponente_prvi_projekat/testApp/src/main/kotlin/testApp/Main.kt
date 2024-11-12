@@ -1,45 +1,13 @@
 package org.example.testApp
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import specification.ReportInterface
-import java.io.BufferedReader
-import java.io.InputStreamReader
+import java.io.File
 import java.sql.DriverManager
 import java.util.*
-
-data class Schedule(
-    val subject: String,
-    val classroom: String,
-    val year: Int,
-    val group: String,
-    val day: String,
-    val time_from: String,
-    val time_to: String
-)
 
 val exporterServices = mutableMapOf<String, ReportInterface> ()
 val serviceLoader = ServiceLoader.load(ReportInterface::class.java)
 
-
-fun prepareData(jsonData: InputStreamReader): Map<String, List<String>> {
-    val gson = Gson()
-    val scheduleType = object : TypeToken<List<Schedule>>() {}.type
-    val schedules: List<Schedule> = gson.fromJson(jsonData, scheduleType)
-
-    // Convert the list into a Map<String, List<String>> where key is column name and value is a list of corresponding column data
-    val reportData: Map<String, List<String>> = mapOf(
-        "subject" to schedules.map { it.subject },
-        "classroom" to schedules.map { it.classroom },
-        "year" to schedules.map { it.year.toString() },
-        "group" to schedules.map { it.group },
-        "day" to schedules.map { it.day },
-        "time_from" to schedules.map { it.time_from },
-        "time_to" to schedules.map { it.time_to }
-    )
-
-    return reportData
-}
 fun loadData(flagForConfig : Boolean){
 
 
@@ -165,11 +133,10 @@ fun loadData(flagForConfig : Boolean){
             print("Write your json path: ")
             var response2 = scanner.next()
             println("-----------------------------------")
-            val inputStream = object {}.javaClass.getResourceAsStream(response2)
-            val reader = InputStreamReader(inputStream)
-            val data = prepareData(reader)
-            reader.close()
-
+            val file = File(response2)
+//  ./testApp/src/main/resources/izvorPodataka.json
+            val jsonData = file.readText()
+            val data = jsonData
             println("1. TXT")
             println("2. CSV")
             println("3. PDF")
@@ -189,8 +156,8 @@ fun loadData(flagForConfig : Boolean){
                         val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
                         if (inputStream != null) {
 
-                            val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
-                           // val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
+                            //val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+                           val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
                             exporterServices["TXT"]?.generateReport(data, "izlazTxtConfig.txt", true, title = "", summary = "", config = configPath)
                         } else {
                             println("Fajl nije pronađen!")
@@ -262,11 +229,7 @@ fun loadData(flagForConfig : Boolean){
  * 5. Napraviti dokumentaciju u specifikaciji(implementirati java docs).
  * */
 fun main() {
-   // val serviceLoader = ServiceLoader.load(ReportInterface::class.java)
-
-   // val exporterServices = mutableMapOf<String, ReportInterface> ()
-
-    serviceLoader.forEach{
+   serviceLoader.forEach{
             service ->
         exporterServices[service.implementationName] = service
     }

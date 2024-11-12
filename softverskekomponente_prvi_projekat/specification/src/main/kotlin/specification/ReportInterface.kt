@@ -1,6 +1,8 @@
 package specification
 
 import calculation.Calculation
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.awt.Color
 import java.io.File
 import java.sql.ResultSet
@@ -41,6 +43,14 @@ interface ReportInterface {
         generateReportWithFormatting(dataAfterConfig!!, destination, header, this.titleProperty, this.summaryProperty, this.formattingNameProperty, this.formattingTextProperty)
     }
 
+    fun generateReport(jsonData: String, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String? = null){
+        val preparedJsonData = prepareJsonData(jsonData)
+        if (config!=null)
+            generateReport(preparedJsonData, destination, header, title, summary, config)
+        else
+            generateReport(preparedJsonData, destination, header, title, summary)
+    }
+
     fun generateReport(data: ResultSet, destination: String, header: Boolean, title: String? = null, summary: String? = null){
         val preparedData = prepareData(data)
         generateReport(preparedData, destination, header, title, summary)
@@ -51,6 +61,24 @@ interface ReportInterface {
         calculations(podaci)
         generateReport(preparedData, destination, header, title, summary)
     }*/
+
+    fun prepareJsonData(jsonData: String): Map<String, List<String>> {
+
+        val gson = Gson()
+        val scheduleType = object : TypeToken<List<Map<String, Any>>>() {}.type
+        val schedules: List<Map<String, Any>> = gson.fromJson(jsonData, scheduleType)
+        val reportData: MutableMap<String, MutableList<String>> = mutableMapOf()
+
+        schedules.forEach { schedule ->
+            schedule.forEach { (key, value) ->
+                if (!reportData.containsKey(key)) {
+                    reportData[key] = mutableListOf()
+                }
+                reportData[key]?.add(value.toString())
+            }
+        }
+        return reportData
+    }
 
     private fun prepareData(resultSet: ResultSet): Map<String, List<String>> {
         val reportData = mutableMapOf<String, MutableList<String>>()

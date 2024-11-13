@@ -10,6 +10,8 @@ class TextReport: ReportInterface {
     override var summaryProperty: String = ""
     override var formattingNameProperty: String? = null
     override var formattingTextProperty: String? = null
+    override var dataTable: MutableMap<String, List<String>> = mutableMapOf()
+
 
     override fun generateReport(
         data: Map<String, List<String>>,
@@ -62,6 +64,7 @@ class TextReport: ReportInterface {
                 writer.println(it)
             }
         }
+        this.dataTable = data as MutableMap<String, List<String>>
     }
 
     override fun generateReportWithFormatting(

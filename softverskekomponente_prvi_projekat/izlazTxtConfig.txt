@@ -1,10 +1,11 @@
-NaslovNovi
 
-countColumn  
--------------
-4            
-3            
-3            
-Count 3      
 
-ZakljucakNovi
+sumColumn  classroom  year  anotherYear  group  day        time_from  numbers  
+-------------------------------------------------------------------------------
+110        RAF1       1.0   2.0          107    Wednesday  08:00      1        
+111        RAF5       4.0   2.0          105    Thursday   14:30      2        
+107        RAF7       3.0   2.0          102    Thursday   15:30      3        
+110        RAF4       1.0   2.0          107    Friday     09:00      4        
+114        RAF4       3.0   2.0          109    Wednesday  11:00      5        
+
+

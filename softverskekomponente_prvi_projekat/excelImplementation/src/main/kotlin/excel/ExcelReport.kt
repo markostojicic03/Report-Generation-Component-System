@@ -5,6 +5,7 @@ import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import specification.ReportInterface
 import java.awt.Color
+import java.io.File
 import java.io.FileOutputStream
 
 class ExcelReport: ReportInterface{
@@ -14,6 +15,7 @@ class ExcelReport: ReportInterface{
     override var summaryProperty: String = ""
     override var formattingNameProperty: String? = null
     override var formattingTextProperty: String? = null
+    override var dataTable: MutableMap<String, List<String>> = mutableMapOf()
 
     override fun generateReport(
         data: Map<String, List<String>>,

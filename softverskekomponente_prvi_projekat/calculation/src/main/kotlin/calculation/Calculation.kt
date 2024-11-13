@@ -20,7 +20,7 @@ class Calculation(data: Map<String, List<String>>, configColumns : MutableList<I
             var sum = 0
             for (colIndex in calculationColumns) {
                 val columnName = data.keys.elementAt(colIndex)
-                val value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
+                val value = data[columnName]?.get(i)?.toString()?.toDoubleOrNull()?.toInt() ?: 0
                 sum += value
             }
             sumColumnValues.add(sum.toString())

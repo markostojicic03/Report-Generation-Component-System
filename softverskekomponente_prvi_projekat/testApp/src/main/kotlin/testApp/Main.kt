@@ -70,8 +70,8 @@ fun loadData(flagForConfig : Boolean){
                         val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
                         if (inputStream != null) {
 
-                            val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
-                            //val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
+                            //val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+                            val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
                             exporterServices["TXT"]?.generateReport(data, "izlazTxtConfig.txt", true, title = "", summary = "", config = configPath)
                         } else {
                             println("Fajl nije pronađen!")

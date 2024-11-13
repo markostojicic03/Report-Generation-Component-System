@@ -8,8 +8,6 @@ class CsvReport: ReportInterface {
     override val formattingFlag: Boolean = false
     override var titleProperty: String = ""
     override var summaryProperty: String = ""
-    override var formattingNameProperty: String? = null
-    override var formattingTextProperty: String? = null
     override var formattingList: Map<String, List<String>> = mutableMapOf()
 
     override fun generateReport(

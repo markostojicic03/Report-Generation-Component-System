@@ -12,8 +12,6 @@ interface ReportInterface {
     val formattingFlag: Boolean
     var titleProperty:String
     var summaryProperty:String
-    var formattingNameProperty: String?
-    var formattingTextProperty :String?
     var formattingList : Map<String, List<String>>
 
     /**
@@ -113,9 +111,7 @@ interface ReportInterface {
         val calculationColumns = mutableListOf<Int>()
         var customTitle: String? = null
         var customSummary: String? = null
-        var formattingType: String? = null
         val formattingList = mutableMapOf<String, MutableList<String>>()
-        var textForFormatting: String? = null
         var sign_Operator: String? = null
         var numberForOperation: Int? = null
 
@@ -123,7 +119,6 @@ interface ReportInterface {
         val calculationRegex = Regex("""Calculations:\s*(\w+)\((\d+(?:,(?:\d+|[<>=]\d+))*)\s*(?:([<>=]+)\s*(\d+))?\)""")
         val titleRegex = Regex("""Title:\s*(.*)""")
         val summaryRegex = Regex("""Summary:\s*(.*)""")
-        //   val formattingRegex = Regex("""Formatting:\s*(\w+)\((\w+)\)""")
         val formattingRegex = Regex("""([a-zA-Z_]+)\((\w+)\)""")
         for (line in lines) {
             when {
@@ -195,61 +190,61 @@ interface ReportInterface {
                 if (formattingList.isNotEmpty()) {
                     println("Poslat je zeljeni nacin formatiranja.")
                     this.formattingList = formattingList
-
                     println("Mapa formattingList: "+ this.formattingList.toString())
-                } else println("Nema formatiranja u config fajlu.")
+                }
+                else println("Nema formatiranja u config fajlu.")
 
 
                 return dataAfterSum
             } else if (calculation == "AVG") {
                 var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
                 val dataAfterAvg = calculationObject.avgCalculate()
-                if ((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty())) {
+                if (formattingList.isNotEmpty()) {
                     println("Poslat je zeljeni nacin formatiranja.")
-                    //   this.formattingNameProperty = formattingType
-                    // this.formattingTextProperty = textForFormatting
                     this.formattingList = formattingList
+                    println("Mapa formattingList: "+ this.formattingList.toString())
                 }
+                else println("Nema formatiranja u config fajlu.")
                 return dataAfterAvg
             } else if (calculation == "COUNT") {
                 var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
                 val dataAfterCount = calculationObject.countCalculate(sign_Operator, numberForOperation)
-                if ((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty())) {
+                if (formattingList.isNotEmpty()) {
                     println("Poslat je zeljeni nacin formatiranja.")
-                    //   this.formattingNameProperty = formattingType
-                    // this.formattingTextProperty = textForFormatting
                     this.formattingList = formattingList
+                    println("Mapa formattingList: "+ this.formattingList.toString())
                 }
+                else println("Nema formatiranja u config fajlu.")
                 return dataAfterCount
             } else if (calculation == "SUB") {
                 var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
                 val dataAfterSub = calculationObject.subCalculate()
-                if ((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty())) {
+                if (formattingList.isNotEmpty()) {
                     println("Poslat je zeljeni nacin formatiranja.")
-                    //   this.formattingNameProperty = formattingType
-                    // this.formattingTextProperty = textForFormatting
                     this.formattingList = formattingList
+                    println("Mapa formattingList: "+ this.formattingList.toString())
                 }
+                else println("Nema formatiranja u config fajlu.")
                 return dataAfterSub
             } else if (calculation == "MUL") {
                 var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
                 val dataAfterMul = calculationObject.mulCalculate()
-                if ((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty())) {
+                if (formattingList.isNotEmpty()) {
                     println("Poslat je zeljeni nacin formatiranja.")
-                    //   this.formattingNameProperty = formattingType
-                    // this.formattingTextProperty = textForFormatting
                     this.formattingList = formattingList
+                    println("Mapa formattingList: "+ this.formattingList.toString())
                 }
+                else println("Nema formatiranja u config fajlu.")
                 return dataAfterMul
             } else if (calculation == "DIV") {
                 var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
                 val dataAfterDiv = calculationObject.divCalculate()
-                if ((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty())) {
+                if (formattingList.isNotEmpty()) {
                     println("Poslat je zeljeni nacin formatiranja.")
-                    //   this.formattingNameProperty = formattingType
-                    // this.formattingTextProperty = textForFormatting
                     this.formattingList = formattingList
+                    println("Mapa formattingList: "+ this.formattingList.toString())
                 }
+                else println("Nema formatiranja u config fajlu.")
                 return dataAfterDiv
             } else {
                 return null

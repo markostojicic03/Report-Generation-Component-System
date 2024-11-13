@@ -13,8 +13,6 @@ class PdfReport: ReportInterface {
     override val formattingFlag: Boolean = true
     override var titleProperty: String = ""
     override var summaryProperty: String = ""
-    override var formattingNameProperty: String? = ""
-    override var formattingTextProperty: String? = ""
     override var formattingList: Map<String, List<String>> = mutableMapOf()
 
     override fun generateReport(
@@ -90,12 +88,76 @@ class PdfReport: ReportInterface {
         summary: String?,
         formattingList: Map<String, List<String>>?
     ) {
-         generateReport(
-            data, destination,
-            header,
-            title,
-            summary
-        )
+        val document = Document()
+
+        try {
+            PdfWriter.getInstance(document, FileOutputStream(destination))
+            document.open()
+
+            fun createCombinedFont(styles: List<String>): Font {
+                val font = FontFactory.getFont(FontFactory.HELVETICA, 12f)
+                styles.forEach { style ->
+                    when (style.lowercase()) {
+                        "bold" -> font.style = font.style or Font.BOLD
+                        "italic" -> font.style = font.style or Font.ITALIC
+                        "color_red" -> font.color = Color.RED
+                        "color_blue" -> font.color = Color.BLUE
+                    }
+                }
+                return font
+            }
+
+            title?.let {
+                val titleFormats = formattingList?.filterValues { "title" in it }?.keys?.toList() ?: listOf()
+                val titleFont = if (titleFormats.isNotEmpty()) createCombinedFont(titleFormats) else FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18f)
+                val titleParagraph = Paragraph(it, titleFont).apply { alignment = Element.ALIGN_CENTER }
+                document.add(titleParagraph)
+                document.add(Chunk.NEWLINE)
+            }
+
+
+            val columns = data.keys.toList()
+            val numColumns = columns.size
+            val table = PdfPTable(numColumns)
+
+            if (header) {
+                columns.forEachIndexed { index, column ->
+                    val headerFormats = formattingList?.filterValues { index.toString() in it }?.keys?.toList() ?: listOf()
+                    val headerFont = if (headerFormats.isNotEmpty()) createCombinedFont(headerFormats) else FontFactory.getFont(FontFactory.HELVETICA_BOLD)
+                    val cell = PdfPCell(Paragraph(column, headerFont)).apply {
+                        horizontalAlignment = Element.ALIGN_CENTER
+                        backgroundColor = Color.LIGHT_GRAY
+                    }
+                    table.addCell(cell)
+                }
+            }
+
+            val numRows = data.values.first().size
+            for (i in 0 until numRows) {
+                columns.forEachIndexed { index, column ->
+                    val dataFormats = formattingList?.filterValues { index.toString() in it }?.keys?.toList() ?: listOf()
+                    val dataFont = if (dataFormats.isNotEmpty()) createCombinedFont(dataFormats) else FontFactory.getFont(FontFactory.HELVETICA, 12f)
+                    val cell = PdfPCell(Paragraph(data[column]?.get(i) ?: "", dataFont)).apply {
+                        horizontalAlignment = Element.ALIGN_CENTER
+                    }
+                    table.addCell(cell)
+                }
+            }
+            document.add(table)
+
+            summary?.let {
+                document.add(Chunk.NEWLINE)
+                val summaryFormats = formattingList?.filterValues { "summary" in it }?.keys?.toList() ?: listOf()
+                val summaryFont = if (summaryFormats.isNotEmpty()) createCombinedFont(summaryFormats) else FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE)
+                val summaryParagraph = Paragraph("Summary: $it", summaryFont)
+                document.add(summaryParagraph)
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            document.close()
+        }
     }
 
 

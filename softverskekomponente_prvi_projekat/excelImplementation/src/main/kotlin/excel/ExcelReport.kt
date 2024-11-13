@@ -12,8 +12,6 @@ class ExcelReport: ReportInterface{
     override val formattingFlag: Boolean = true
     override var titleProperty: String = ""
     override var summaryProperty: String = ""
-    override var formattingNameProperty: String? = null
-    override var formattingTextProperty: String? = null
     override var formattingList: Map<String, List<String>> = mutableMapOf()
 
     override fun generateReport(
@@ -91,37 +89,42 @@ class ExcelReport: ReportInterface{
         val workbook: Workbook = XSSFWorkbook()
         val sheet: Sheet = workbook.createSheet("Report")
 
-        // Definisanje stilova za formatiranje
         val boldFont = workbook.createFont().apply { bold = true }
         val italicFont = workbook.createFont().apply { italic = true }
         val redFont = workbook.createFont().apply { color = IndexedColors.RED.index }
+        val blueFont = workbook.createFont().apply { color = IndexedColors.BLUE.index }
 
-        val boldStyle = workbook.createCellStyle().apply { setFont(boldFont) }
-        val italicStyle = workbook.createCellStyle().apply { setFont(italicFont) }
-        val redStyle = workbook.createCellStyle().apply { setFont(redFont) }
+        fun createCombinedStyle(formattingKeys: List<String>): CellStyle {
+            val cellStyle = workbook.createCellStyle()
+            val combinedFont = workbook.createFont()
 
-        // Dodaj naslov (title) ako postoji i primeni formatiranje
+            formattingKeys.forEach { format ->
+                when (format.lowercase()) {
+                    "bold" -> combinedFont.bold = true
+                    "italic" -> combinedFont.italic = true
+                    "underline" -> combinedFont.underline = Font.U_SINGLE
+                    "color_red" -> combinedFont.color = IndexedColors.RED.index
+                    "color_blue" -> combinedFont.color = IndexedColors.BLUE.index
+                }
+            }
+            cellStyle.setFont(combinedFont)
+            return cellStyle
+        }
+
+
         title?.let {
             val titleRow: Row = sheet.createRow(0)
             val titleCell: Cell = titleRow.createCell(0)
             titleCell.setCellValue(it)
-
-            // Primeni stilove za title na osnovu `formattingList`
-            val titleStyle = workbook.createCellStyle()
-            formattingList?.get("title")?.forEach { format ->
-                when (format) {
-                    "Bold" -> titleStyle.setFont(boldFont)
-                    "Italic" -> titleStyle.setFont(italicFont)
-                    "color_red" -> titleStyle.setFont(redFont)
-                }
-            }
-            titleCell.cellStyle = titleStyle
-
-            // Spoji ćelije za title
             sheet.addMergedRegion(CellRangeAddress(0, 0, 0, data.size - 1))
+
+
+            val titleFormats = formattingList?.filterValues { "title" in it }?.keys?.toList()
+            titleFormats?.let {
+                titleCell.cellStyle = createCombinedStyle(titleFormats)
+            }
         }
 
-        // Kreiraj zaglavlje ako je potrebno
         var currentRow = if (header) 1 else 0
         if (header) {
             val headerRow: Row = sheet.createRow(currentRow++)
@@ -129,63 +132,46 @@ class ExcelReport: ReportInterface{
                 val headerCell = headerRow.createCell(index)
                 headerCell.setCellValue(columnName)
 
-                // Primeni formatiranje iz `formattingList` za kolone
-                formattingList?.get(columnName)?.forEach { format ->
-                    when (format) {
-                        "Bold" -> headerCell.cellStyle = boldStyle
-                        "Italic" -> headerCell.cellStyle = italicStyle
-                        "color_red" -> headerCell.cellStyle = redStyle
-                    }
+                val columnFormats = formattingList?.filterValues { index.toString() in it }?.keys?.toList()
+                columnFormats?.let {
+                    headerCell.cellStyle = createCombinedStyle(columnFormats)
                 }
             }
         }
 
-        // Dodavanje redova sa podacima
         val numRows = data.values.first().size
         for (i in 0 until numRows) {
             val dataRow: Row = sheet.createRow(currentRow++)
             data.keys.forEachIndexed { index, columnName ->
-                val cell = dataRow.createCell(index)
-                cell.setCellValue(data[columnName]?.get(i) ?: "")
+                val dataCell = dataRow.createCell(index)
+                dataCell.setCellValue(data[columnName]?.get(i) ?: "")
 
-                // Primeni formatiranje za podatke kolona
-                formattingList?.get(columnName)?.forEach { format ->
-                    when (format) {
-                        "Bold" -> cell.cellStyle = boldStyle
-                        "Italic" -> cell.cellStyle = italicStyle
-                        "color_red" -> cell.cellStyle = redStyle
-                    }
+                // Primeni sve stilove za kolonu, ako ih ima
+                val columnFormats = formattingList?.filterValues { index.toString() in it }?.keys?.toList()
+                columnFormats?.let {
+                    dataCell.cellStyle = createCombinedStyle(columnFormats)
                 }
             }
         }
 
-        // Dodaj summary (zaključak) ako postoji i primeni formatiranje
         summary?.let {
-            val summaryRow: Row = sheet.createRow(currentRow + 2)
+            val summaryRow: Row = sheet.createRow(currentRow + 1)
             val summaryCell: Cell = summaryRow.createCell(0)
             summaryCell.setCellValue("Summary: $it")
+            sheet.addMergedRegion(CellRangeAddress(currentRow + 1, currentRow + 1, 0, data.size - 1))
 
-            // Stilizuj summary na osnovu `formattingList`
-            val summaryStyle = workbook.createCellStyle()
-            formattingList?.get("summary")?.forEach { format ->
-                when (format) {
-                    "Bold" -> summaryStyle.setFont(boldFont)
-                    "Italic" -> summaryStyle.setFont(italicFont)
-                    "color_red" -> summaryStyle.setFont(redFont)
-                }
+            // Primeni sve stilove definisane za `summary`
+            val summaryFormats = formattingList?.filterValues { "summary" in it }?.keys?.toList()
+            summaryFormats?.let {
+                summaryCell.cellStyle = createCombinedStyle(summaryFormats)
             }
-            summaryCell.cellStyle = summaryStyle
-
-            // Spoji ćelije za summary
-            sheet.addMergedRegion(CellRangeAddress(currentRow + 2, currentRow + 2, 0, data.size - 1))
         }
 
-        // Upisivanje u fajl
+
         FileOutputStream(destination).use { outputStream ->
             workbook.write(outputStream)
         }
 
-        // Zatvori workbook
         workbook.close()
     }
 

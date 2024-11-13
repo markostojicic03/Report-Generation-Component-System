@@ -10,6 +10,7 @@ class CsvReport: ReportInterface {
     override var summaryProperty: String = ""
     override var formattingNameProperty: String? = null
     override var formattingTextProperty: String? = null
+    override var formattingList: Map<String, List<String>> = mutableMapOf()
 
     override fun generateReport(
         data: Map<String, List<String>>,
@@ -31,18 +32,21 @@ class CsvReport: ReportInterface {
             }
         }
     }
+
     override fun generateReportWithFormatting(
         data: Map<String, List<String>>,
         destination: String,
         header: Boolean,
         title: String?,
         summary: String?,
-        formattingName: String?,
-        formattingText: String?
+        formattingList: Map<String, List<String>>?
     ) {
         if (!formattingFlag) {
-            throw IllegalArgumentException("Formatting is not valid for this type of format.")
+            print("Formatting is not valid for this type of format.")
         }
+
         generateReport(data, destination, header,title,summary)
     }
+
+
 }

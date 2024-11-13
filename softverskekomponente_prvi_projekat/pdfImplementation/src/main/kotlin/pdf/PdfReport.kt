@@ -15,6 +15,7 @@ class PdfReport: ReportInterface {
     override var summaryProperty: String = ""
     override var formattingNameProperty: String? = ""
     override var formattingTextProperty: String? = ""
+    override var formattingList: Map<String, List<String>> = mutableMapOf()
 
     override fun generateReport(
         data: Map<String, List<String>>,
@@ -80,104 +81,25 @@ class PdfReport: ReportInterface {
             document.close()
         }
     }
+
     override fun generateReportWithFormatting(
         data: Map<String, List<String>>,
         destination: String,
         header: Boolean,
         title: String?,
         summary: String?,
-        formattingName: String?,
-        formattingText: String?
+        formattingList: Map<String, List<String>>?
     ) {
-        if (!formattingFlag) {
-            throw IllegalArgumentException("Formatting is not valid for this type of format.")
-        }
-
-        val document = Document()
-
-        try {
-            PdfWriter.getInstance(document, FileOutputStream(destination))
-
-            document.open()
-
-            val baseFont = FontFactory.getFont(FontFactory.HELVETICA)
-            val customFont = Font(baseFont)
-
-            when (formattingName?.lowercase()) {
-                "bold" -> customFont.style = Font.BOLD
-                "italic" -> customFont.style = Font.ITALIC
-                "underline" -> customFont.style = Font.UNDERLINE
-                "color_red" -> customFont.color = Color.RED
-                "color_blue" -> customFont.color = Color.BLUE
-                "color_green" -> customFont.color = Color.GREEN
-            }
-
-
-            if (formattingText.equals("title", ignoreCase = true)) {
-                title?.let {
-                    val titleParagraph = Paragraph(it, customFont)
-                    titleParagraph.alignment = Element.ALIGN_CENTER
-                    document.add(titleParagraph)
-                    document.add(Chunk.NEWLINE) // Dodajemo novi red nakon naslova
-                }
-            } else {
-                title?.let {
-                    val titleParagraph = Paragraph(it, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18f))
-                    titleParagraph.alignment = Element.ALIGN_CENTER
-                    document.add(titleParagraph)
-                    document.add(Chunk.NEWLINE)
-                }
-            }
-
-
-            val columns = data.keys.toList()
-            val numColumns = columns.size
-            val table = PdfPTable(numColumns)
-
-            if (header) {
-                columns.forEach { column ->
-                    val cell = PdfPCell(Paragraph(column, FontFactory.getFont(FontFactory.HELVETICA_BOLD)))
-                    cell.horizontalAlignment = Element.ALIGN_CENTER
-                    table.addCell(cell)
-                }
-            }
-
-            val numRows = data.values.first().size
-            for (i in 0 until numRows) {
-                columns.forEachIndexed { index, column ->
-                    val cellData = data[column]?.get(i) ?: ""
-
-                    val cellFont = if (formattingText == index.toString()) customFont else FontFactory.getFont(FontFactory.HELVETICA)
-                    val cell = PdfPCell(Paragraph(cellData, cellFont))
-
-                    cell.horizontalAlignment = Element.ALIGN_CENTER
-                    table.addCell(cell)
-                }
-            }
-
-            document.add(table)
-
-            if (formattingText.equals("summary", ignoreCase = true)) {
-                summary?.let {
-                    document.add(Chunk.NEWLINE)
-                    val summaryParagraph = Paragraph("Summary: $summary", customFont)
-                    document.add(summaryParagraph)
-                }
-            } else {
-                summary?.let {
-                    document.add(Chunk.NEWLINE)
-                    val summaryParagraph = Paragraph("Summary: $summary", FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE))
-                    document.add(summaryParagraph)
-                }
-            }}
-        catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            // Close the document
-            document.close()
-        }
-
-
-
+         generateReport(
+            data, destination,
+            header,
+            title,
+            summary
+        )
     }
+
+
+
+
+
 }

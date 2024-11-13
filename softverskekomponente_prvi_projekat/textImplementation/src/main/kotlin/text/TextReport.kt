@@ -10,6 +10,7 @@ class TextReport: ReportInterface {
     override var summaryProperty: String = ""
     override var formattingNameProperty: String? = null
     override var formattingTextProperty: String? = null
+    override var formattingList: Map<String, List<String>> = mutableMapOf()
 
     override fun generateReport(
         data: Map<String, List<String>>,
@@ -70,12 +71,12 @@ class TextReport: ReportInterface {
         header: Boolean,
         title: String?,
         summary: String?,
-        formattingName: String?,
-        formattingText: String?
+        formattingList: Map<String, List<String>>?
     ) {
-        if(!formattingFlag){
-            println("Formatting is not valid for this type of format.") // ovde nek izbaci neki exception koji ce da govori isto ovo
+        if (!formattingFlag) {
+            print("Formatting is not valid for this type of format.")
         }
+
         generateReport(data, destination, header,title,summary)
     }
 

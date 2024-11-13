@@ -14,7 +14,7 @@ interface ReportInterface {
     var summaryProperty:String
     var formattingNameProperty: String?
     var formattingTextProperty :String?
-
+    var formattingList : Map<String, List<String>>
 
     /**
         IZMENJENA VERZIJA SPECIFIKACIJE TREBA DA SADRZI:
@@ -38,14 +38,14 @@ interface ReportInterface {
 
     fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String){
         var dataAfterConfig = readConfig(data,config)
-        generateReportWithFormatting(dataAfterConfig!!, destination, header, this.titleProperty, this.summaryProperty, this.formattingNameProperty, this.formattingTextProperty)
+        generateReportWithFormatting(dataAfterConfig!!, destination, header, this.titleProperty, this.summaryProperty, this.formattingList)
     }
 
     fun generateReport(data: ResultSet, destination: String, header: Boolean, title: String? = null, summary: String? = null){
         val preparedData = prepareData(data)
         generateReport(preparedData, destination, header, title, summary)
     }
-    fun generateReportWithFormatting(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, formattingName: String? = null, formattingText: String? = null)
+    fun generateReportWithFormatting(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, formattingList:Map<String, List<String>>?)
 
     /*fun generateReport(){
         calculations(podaci)
@@ -105,7 +105,7 @@ interface ReportInterface {
 
     }
 
-    private fun readConfig(data: Map<String, List<String>>, config: String):Map<String, List<String>>?{
+    private fun readConfig(data: Map<String, List<String>>, config: String):Map<String, List<String>>? {
         val lines = File(config).readLines()
 
         val columns = mutableListOf<Int>()
@@ -114,6 +114,7 @@ interface ReportInterface {
         var customTitle: String? = null
         var customSummary: String? = null
         var formattingType: String? = null
+        val formattingList = mutableMapOf<String, MutableList<String>>()
         var textForFormatting: String? = null
         var sign_Operator: String? = null
         var numberForOperation: Int? = null
@@ -122,8 +123,8 @@ interface ReportInterface {
         val calculationRegex = Regex("""Calculations:\s*(\w+)\((\d+(?:,(?:\d+|[<>=]\d+))*)\s*(?:([<>=]+)\s*(\d+))?\)""")
         val titleRegex = Regex("""Title:\s*(.*)""")
         val summaryRegex = Regex("""Summary:\s*(.*)""")
-        val formattingRegex = Regex("""Formatting:\s*(\w+)\((\w+)\)""")
-
+        //   val formattingRegex = Regex("""Formatting:\s*(\w+)\((\w+)\)""")
+        val formattingRegex = Regex("""([a-zA-Z_]+)\((\w+)\)""")
         for (line in lines) {
             when {
                 columnsRegex.matches(line) -> {
@@ -132,6 +133,7 @@ interface ReportInterface {
                         columns.add(it.trim().toInt())
                     }
                 }
+
                 calculationRegex.matches(line) -> {
                     val match = calculationRegex.find(line)
                     calculation = match?.groups?.get(1)?.value
@@ -151,275 +153,112 @@ interface ReportInterface {
                         }
                     }
                 }
+
                 titleRegex.matches(line) -> {
                     customTitle = titleRegex.find(line)?.groups?.get(1)?.value
                 }
+
                 summaryRegex.matches(line) -> {
                     customSummary = summaryRegex.find(line)?.groups?.get(1)?.value
                 }
-                formattingRegex.matches(line) -> {
+                /*formattingRegex.matches(line) -> {
                     val match = formattingRegex.find(line)
                     formattingType = match?.groups?.get(1)?.value ?: ""
                     textForFormatting = match?.groups?.get(2)?.value ?: ""
+                }*/
+                formattingRegex.containsMatchIn(line) -> {
+                    // `findAll` uzima sva podudaranja za regex u liniji
+                    val matches = formattingRegex.findAll(line)
+                    matches.forEach { match ->
+                        // Proveravamo da li su grupe validne i dodeljujemo vrednosti
+                        val formatType = match.groups[1]?.value ?: ""
+                        val targetText = match.groups[2]?.value ?: ""
+                        if (formatType.isNotEmpty() && targetText.isNotEmpty()) {
+                            formattingList.computeIfAbsent(formatType) { mutableListOf() }.add(targetText)
+                        }
+                    }
                 }
             }
         }
+            // Ispis podataka za proveru
+            // println("FORMATIRANJE: $formattingType za text(kolonu) $textForFormatting")
 
-        // Ispis podataka za proveru
-       // println("FORMATIRANJE: $formattingType za text(kolonu) $textForFormatting")
-
-        this.titleProperty = customTitle!!
-        this.summaryProperty = customSummary!!
-/** Dodati proveru toga da li je korisnik uopste napisao u configuration fajl neku kalkulaciju/title/summary/formatiranje ili nije.Ukoliko nije napisao onda mu poslati print neki da je pogresio ili slicno.*/
-
+            this.titleProperty = customTitle!!
+            this.summaryProperty = customSummary!!
+            /** Dodati proveru toga da li je korisnik uopste napisao u configuration fajl neku kalkulaciju/title/summary/formatiranje ili nije.Ukoliko nije napisao onda mu poslati print neki da je pogresio ili slicno.*/
 
 
-        if(calculation =="SUM"){
-            println("Usao u sum")
-            println(calculationColumns.toString())
-            println(columns.toString())
-            var calculationObject: Calculation = Calculation(data,columns, calculationColumns)
-            val dataAfterSum = calculationObject.sumCalculate()
-            if((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty() )){
-                println("Poslat je zeljeni nacin formatiranja.")
-                this.formattingNameProperty = formattingType
-                this.formattingTextProperty = textForFormatting
+            if (calculation == "SUM") {
+                println("Usao u sum")
+                var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
+                val dataAfterSum = calculationObject.sumCalculate()
+                if (formattingList.isNotEmpty()) {
+                    println("Poslat je zeljeni nacin formatiranja.")
+                    this.formattingList = formattingList
 
+                    println("Mapa formattingList: "+ this.formattingList.toString())
+                } else println("Nema formatiranja u config fajlu.")
+
+
+                return dataAfterSum
+            } else if (calculation == "AVG") {
+                var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
+                val dataAfterAvg = calculationObject.avgCalculate()
+                if ((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty())) {
+                    println("Poslat je zeljeni nacin formatiranja.")
+                    //   this.formattingNameProperty = formattingType
+                    // this.formattingTextProperty = textForFormatting
+                    this.formattingList = formattingList
+                }
+                return dataAfterAvg
+            } else if (calculation == "COUNT") {
+                var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
+                val dataAfterCount = calculationObject.countCalculate(sign_Operator, numberForOperation)
+                if ((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty())) {
+                    println("Poslat je zeljeni nacin formatiranja.")
+                    //   this.formattingNameProperty = formattingType
+                    // this.formattingTextProperty = textForFormatting
+                    this.formattingList = formattingList
+                }
+                return dataAfterCount
+            } else if (calculation == "SUB") {
+                var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
+                val dataAfterSub = calculationObject.subCalculate()
+                if ((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty())) {
+                    println("Poslat je zeljeni nacin formatiranja.")
+                    //   this.formattingNameProperty = formattingType
+                    // this.formattingTextProperty = textForFormatting
+                    this.formattingList = formattingList
+                }
+                return dataAfterSub
+            } else if (calculation == "MUL") {
+                var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
+                val dataAfterMul = calculationObject.mulCalculate()
+                if ((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty())) {
+                    println("Poslat je zeljeni nacin formatiranja.")
+                    //   this.formattingNameProperty = formattingType
+                    // this.formattingTextProperty = textForFormatting
+                    this.formattingList = formattingList
+                }
+                return dataAfterMul
+            } else if (calculation == "DIV") {
+                var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
+                val dataAfterDiv = calculationObject.divCalculate()
+                if ((!formattingType.isNullOrEmpty()) || (!textForFormatting.isNullOrEmpty())) {
+                    println("Poslat je zeljeni nacin formatiranja.")
+                    //   this.formattingNameProperty = formattingType
+                    // this.formattingTextProperty = textForFormatting
+                    this.formattingList = formattingList
+                }
+                return dataAfterDiv
+            } else {
+                return null
+                // mnozenje, deljenje, oduzimanje??
             }
-            else println("Nema formatiranja u config fajlu.")
-            return dataAfterSum
-        }
-        else if(calculation == "AVG"){
-            var calculationObject: Calculation = Calculation(data,columns, calculationColumns)
-            val dataAfterAvg = calculationObject.avgCalculate()
-            return dataAfterAvg
-        }
-        else if(calculation == "COUNT"){
-            var calculationObject: Calculation = Calculation(data,columns, calculationColumns)
-            val dataAfterCount = calculationObject.countCalculate(sign_Operator, numberForOperation)
-            return dataAfterCount
-        }
-        else if (calculation == "SUB"){
-            var calculationObject: Calculation = Calculation(data,columns, calculationColumns)
-            val dataAfterSub = calculationObject.subCalculate()
-            return dataAfterSub
-        }
-        else if (calculation == "MUL"){
-            var calculationObject: Calculation = Calculation(data,columns, calculationColumns)
-            val dataAfterMul = calculationObject.mulCalculate()
-            return dataAfterMul
-        }
-        else if (calculation == "DIV"){
-            var calculationObject: Calculation = Calculation(data,columns, calculationColumns)
-            val dataAfterDiv = calculationObject.divCalculate()
-            return dataAfterDiv
-        }
-        else{
-            return null
-            // mnozenje, deljenje, oduzimanje??
+
+
         }
 
 
     }
-
-//    private fun sumCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, sumColumns :MutableList<Int> ):Map<String, List<String>>?{
-//
-//        val result = mutableMapOf<String, List<String>>()
-//        val filteredData = mutableMapOf<String, List<String>>()
-//
-//        for(i in configColumns){
-//            val columnName = data.keys.elementAt(i)
-//            filteredData[columnName] = data[columnName] ?: emptyList()
-//        }
-//        val sumColumnValues = mutableListOf<String>()
-//        val numRows = data.values.firstOrNull()?.size ?: 0
-//        for (i in 0 until numRows) {
-//            var sum = 0
-//            for (colIndex in sumColumns) {
-//                val columnName = data.keys.elementAt(colIndex)
-//                val value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
-//                sum += value
-//            }
-//            sumColumnValues.add(sum.toString())
-//        }
-//
-//        result["sumColumn"] = sumColumnValues
-//
-//        filteredData.forEach { (key, value) ->
-//            result[key] = value
-//        }
-//
-//        return result
-//
-//    }
-//
-//    private fun avgCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, avgColumns :MutableList<Int>):Map<String, List<String>>?{
-//
-//        val result = mutableMapOf<String, List<String>>()
-//        val filteredData = mutableMapOf<String, List<String>>()
-//
-//        for(i in configColumns){
-//            val columnName = data.keys.elementAt(i)
-//            filteredData[columnName] = data[columnName] ?: emptyList()
-//        }
-//        val avgColumnValues = mutableListOf<String>()
-//
-//        val numRows = data.values.firstOrNull()?.size ?: 0
-//        for (i in 0 until numRows) {
-//            var numer = 0;
-//            var sum = 0
-//            for (colIndex in avgColumns) {
-//                val columnName = data.keys.elementAt(colIndex)
-//                val value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
-//                sum += value
-//                numer++
-//            }
-//            val avg = (sum * 1.0) / (numer * 1.0)
-//            avgColumnValues.add(avg.toString())
-//        }
-//
-//        result["avgColumn"] = avgColumnValues
-//
-//        filteredData.forEach { (key, value) ->
-//            result[key] = value
-//        }
-//
-//        return result
-//    }
-//
-//    private fun countCalculate(data: Map<String, List<String>>, configColumns: MutableList<Int>, countColumns: MutableList<Int>, operand: String?, numberForOperation: Int?): Map<String, List<String>>? {
-//
-//        val result = mutableMapOf<String, MutableList<String>>()
-//        result["countColumn"] = mutableListOf()
-//
-//        val columnName = data.keys.elementAt(countColumns.get(0))
-//        val columnData = data[columnName] ?: emptyList()
-//
-//        columnData.forEach { value ->
-//            val intValue = value.toIntOrNull()
-//            if (intValue != null && operand != null && numberForOperation != null) {
-//                val conditionMet = when (operand) {
-//                    "<" -> intValue < numberForOperation
-//                    ">" -> intValue > numberForOperation
-//                    "<=" -> intValue <= numberForOperation
-//                    ">=" -> intValue >= numberForOperation
-//                    "=" -> intValue == numberForOperation
-//                    else -> false
-//                }
-//
-//                if (conditionMet) {
-//                    result["countColumn"]?.add(value)
-//                }
-//            }
-//        }
-//
-//        val numRows = result["countColumn"]?.size ?: 0
-//        result["countColumn"]?.add("Count $numRows")
-//        println(numRows)
-//        return result
-//    }
-//
-//
-//    private fun subCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, subColumns :MutableList<Int> ):Map<String, List<String>>?{
-//
-//        val result = mutableMapOf<String, List<String>>()
-//        val filteredData = mutableMapOf<String, List<String>>()
-//
-//        for(i in configColumns){
-//            val columnName = data.keys.elementAt(i)
-//            filteredData[columnName] = data[columnName] ?: emptyList()
-//        }
-//        val subColumnValues = mutableListOf<String>()
-//        val numRows = data.values.firstOrNull()?.size ?: 0
-//        for (i in 0 until numRows) {
-//            var colIndex = 0
-//            var sub = 0
-//            while (colIndex < subColumns.size - 1) {
-//                var columnName = data.keys.elementAt(subColumns.get(colIndex))
-//                var value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
-//                sub = value
-//                columnName = data.keys.elementAt(subColumns.get(++colIndex))
-//                value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
-//                sub -= value
-//            }
-//            subColumnValues.add(sub.toString())
-//        }
-//
-//        result["subColumn"] = subColumnValues
-//
-//        filteredData.forEach { (key, value) ->
-//            result[key] = value
-//        }
-//
-//        return result
-//
-//    }
-//
-//    private fun mulCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, muulColumns :MutableList<Int> ):Map<String, List<String>>?{
-//
-//        val result = mutableMapOf<String, List<String>>()
-//        val filteredData = mutableMapOf<String, List<String>>()
-//
-//        for(i in configColumns){
-//            val columnName = data.keys.elementAt(i)
-//            filteredData[columnName] = data[columnName] ?: emptyList()
-//        }
-//        val mulColumnValues = mutableListOf<String>()
-//        val numRows = data.values.firstOrNull()?.size ?: 0
-//        for (i in 0 until numRows) {
-//            var mul = 1.0
-//            for (colIndex in muulColumns) {
-//                val columnName = data.keys.elementAt(colIndex)
-//                val value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
-//                mul *= value
-//            }
-//            mulColumnValues.add(mul.toString())
-//        }
-//
-//        result["mulColumn"] = mulColumnValues
-//
-//        filteredData.forEach { (key, value) ->
-//            result[key] = value
-//        }
-//
-//        return result
-//
-//    }
-//
-//    private fun divCalculate(data: Map<String, List<String>>, configColumns : MutableList<Int>, divColumns :MutableList<Int> ):Map<String, List<String>>?{
-//
-//        val result = mutableMapOf<String, List<String>>()
-//        val filteredData = mutableMapOf<String, List<String>>()
-//
-//        for(i in configColumns){
-//            val columnName = data.keys.elementAt(i)
-//            filteredData[columnName] = data[columnName] ?: emptyList()
-//        }
-//        val divColumnValues = mutableListOf<String>()
-//        val numRows = data.values.firstOrNull()?.size ?: 0
-//        for (i in 0 until numRows) {
-//            var colIndex = 0
-//            var div = 0.0
-//            while (colIndex < divColumns.size - 1) {
-//                var columnName = data.keys.elementAt(divColumns.get(colIndex))
-//                var value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
-//                div = value.toDouble()
-//                columnName = data.keys.elementAt(divColumns.get(++colIndex))
-//                value = data[columnName]?.get(i)?.toIntOrNull() ?: 0
-//                div /= value
-//            }
-//            divColumnValues.add(div.toString())
-//        }
-//
-//        result["divColumn"] = divColumnValues
-//
-//        filteredData.forEach { (key, value) ->
-//            result[key] = value
-//        }
-//
-//        return result
-//
-//    }
-
-}
 //    /izvorPodataka.json

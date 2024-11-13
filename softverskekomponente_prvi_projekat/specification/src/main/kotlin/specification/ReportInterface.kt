@@ -1,6 +1,8 @@
 package specification
 
 import calculation.Calculation
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.awt.Color
 import java.io.File
 import java.sql.ResultSet
@@ -13,6 +15,8 @@ interface ReportInterface {
     var titleProperty:String
     var summaryProperty:String
     var formattingList : Map<String, List<String>>
+ 
+    var dataTable: MutableMap<String, List<String>>
 
     /**
         IZMENJENA VERZIJA SPECIFIKACIJE TREBA DA SADRZI:
@@ -36,7 +40,20 @@ interface ReportInterface {
 
     fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String){
         var dataAfterConfig = readConfig(data,config)
-        generateReportWithFormatting(dataAfterConfig!!, destination, header, this.titleProperty, this.summaryProperty, this.formattingList)
+        this.dataTable = (dataAfterConfig as MutableMap<String, List<String>>?)!!
+        generateReportWithFormatting(dataAfterConfig!!, destination, header, this.titleProperty, this.summaryProperty,this.formattingList )
+    }
+
+    fun generateReport(jsonData: String, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String? = null){
+        var preparedJsonData = prepareJsonData(jsonData)
+        this.dataTable = preparedJsonData as MutableMap<String, List<String>>
+        if (config!=null)
+            generateReport(preparedJsonData, destination, header, title, summary, config)
+        else
+            generateReport(preparedJsonData, destination, header, title, summary)
+        addColumn()
+        preparedJsonData = this.dataTable
+        generateReport(dataTable, destination, header, title, summary)
     }
 
     fun generateReport(data: ResultSet, destination: String, header: Boolean, title: String? = null, summary: String? = null){
@@ -49,6 +66,24 @@ interface ReportInterface {
         calculations(podaci)
         generateReport(preparedData, destination, header, title, summary)
     }*/
+
+    fun prepareJsonData(jsonData: String): Map<String, List<String>> {
+
+        val gson = Gson()
+        val scheduleType = object : TypeToken<List<Map<String, Any>>>() {}.type
+        val schedules: List<Map<String, Any>> = gson.fromJson(jsonData, scheduleType)
+        val reportData: MutableMap<String, MutableList<String>> = mutableMapOf()
+
+        schedules.forEach { schedule ->
+            schedule.forEach { (key, value) ->
+                if (!reportData.containsKey(key)) {
+                    reportData[key] = mutableListOf()
+                }
+                reportData[key]!!.add(value.toString())
+            }
+        }
+        return reportData
+    }
 
     private fun prepareData(resultSet: ResultSet): Map<String, List<String>> {
         val reportData = mutableMapOf<String, MutableList<String>>()
@@ -85,6 +120,29 @@ interface ReportInterface {
             return
         }
 
+    }
+    fun addColumn(){
+        print("Write path to your column config file")
+        //val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+        val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/column.txt"
+        val lines = File(configPath).readLines()
+        var columnName = "n"
+        var values = listOf<String>()
+
+        lines.forEach { line ->
+            when {
+                line.startsWith("ColumnName:") -> {
+                    columnName = line.removePrefix("ColumnName:").trim()
+                }
+                line.startsWith("Values:") -> {
+                    values = line.removePrefix("Values:")
+                        .trim()
+                        .split(",")
+                        .map { it.trim().toString() }
+                }
+            }
+        }
+        this.dataTable[columnName] = values
     }
 
     fun underlineFormattingMethod(textForUnderline : String){

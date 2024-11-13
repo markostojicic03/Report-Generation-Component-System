@@ -6,6 +6,7 @@ import com.lowagie.text.pdf.PdfPTable
 import com.lowagie.text.pdf.PdfWriter
 import specification.ReportInterface
 import java.awt.Color
+import java.io.File
 import java.io.FileOutputStream
 
 class PdfReport: ReportInterface {
@@ -14,6 +15,8 @@ class PdfReport: ReportInterface {
     override var titleProperty: String = ""
     override var summaryProperty: String = ""
     override var formattingList: Map<String, List<String>> = mutableMapOf()
+  
+    override var dataTable: MutableMap<String, List<String>> = mutableMapOf()
 
     override fun generateReport(
         data: Map<String, List<String>>,

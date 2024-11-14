@@ -23,33 +23,32 @@ class TextReport: ReportInterface {
         val columns = data.keys.toList()
         val numRows = data.values.first().size
 
-        // Calculate the max width for each column
+
         val columnWidths = columns.map { column ->
             val maxDataWidth = data[column]?.maxOfOrNull { it.length } ?: 0
             maxOf(column.length, maxDataWidth)
         }
 
-        // Write to TXT file
+
         File(destination).printWriter().use { writer ->
-            // Write title if provided
+
             title?.let {
                 writer.println(it)
                 writer.println()
             }
 
-            // Write the header row
+
             columns.forEachIndexed { index, column ->
                 writer.print(column.padEnd(columnWidths[index] + 2))  // +2 for spacing
             }
             writer.println()
 
-            // Write dashes under the header
+
             columnWidths.forEach { width ->
                 writer.print("-".repeat(width + 2))  // +2 for spacing
             }
             writer.println()
 
-            // Write each row of data, properly spaced
             for (i in 0 until numRows) {
                 columns.forEachIndexed { index, column ->
                     val cell = data[column]?.get(i) ?: ""
@@ -58,7 +57,6 @@ class TextReport: ReportInterface {
                 writer.println()
             }
 
-            // Write summary if provided
             summary?.let {
                 writer.println()
                 writer.println(it)
@@ -75,11 +73,11 @@ class TextReport: ReportInterface {
         summary: String?,
         formattingList: Map<String, List<String>>?
     ) {
-        if (!formattingFlag) {
-            print("Formatting is not valid for this type of format.")
-        }
 
         generateReport(data, destination, header,title,summary)
+        if (!formattingFlag) {
+            throw UnsupportedOperationException("Formatting is not valid for this type of format.")
+        }
     }
 
 }

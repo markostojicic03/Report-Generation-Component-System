@@ -15,26 +15,8 @@ interface ReportInterface {
     var titleProperty:String
     var summaryProperty:String
     var formattingList : Map<String, List<String>>
- 
     var dataTable: MutableMap<String, List<String>>
 
-    /**
-        IZMENJENA VERZIJA SPECIFIKACIJE TREBA DA SADRZI:
-     * funkcija za kalkulacije, treba ti dodatan argument u novoj funkciji za generate report, u trenutnku kada se pozove taj generatereport sa dodatnim argumentom(npr. argument ce se zvati config),
-         * onda se taj argument salje funkciji koja radi kalkulacije, npr. ukoliko je dodatan argument SUM, onda ce funkcija za kalkulacije da sabere kolone i da pozove ponovo generatereport koji ce da izbaci izlaz za statemente nakon kalkulacija
-         * ovaj deo je objasnjen kod Jefimije na vezbama 4, oko 44/45. minuta
-     * potrebna ti je i funkcija za razlicite vrste formatiranja(bold, italic, color itd.), formatiranje je moguce samo za header i summary
-     * sve se radi preko mape, tako da ukoliko ti korisnik posalje resultset ti ces samo preko funkcije prepare statement da to pretvoris u mapu
-         * na isti nacin bi to radio i ukoliko ti posalje drugaciji izvor podataka(kao npr. json)
-     * BITNI DELOVI SA CASA KOD JEFIMIJE(Vezbe 23.10.2024.):
-         * na pocetku casa do 33. minuta objasnjava kako se povezuje projekat(ovaj deo je bitan jer ce to pitati na odbrani)
-         * objasnjavanje specifikacije - od 33. minuta
-         * objasnjavanje CSV implementacije - od 45. minuta
-         * objasnjavanje TXT implementacije - od 48. minuta
-         * objasnjavanje PDF implementacije - od 51. minuta
-         * objasnjavanje Excel implementacije - od 54. minuta
-         * objasnjavanje testne aplikacije - od 55. minuta
-     */
 
     fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null)
 
@@ -106,22 +88,9 @@ interface ReportInterface {
         return reportData
     }
 
-    fun boldFormattingMethod(textForBold : String, density : Int){
-        if(!this.formattingFlag){
-            println("This format is not valid for formatting.")
-            return
-        }
 
-    }
-
-    fun italicFormattingMethod(textForItalic : String, italicCurv: Int){
-        if(!this.formattingFlag){
-            println("This format is not valid for formatting.")
-            return
-        }
-
-    }
     fun addColumn(){
+        /** IZBACITI PRINT IZ BIBLIOTEKE  */
         print("Write path to your column config file")
         //val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
         val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/column.txt"
@@ -145,21 +114,6 @@ interface ReportInterface {
         this.dataTable[columnName] = values
     }
 
-    fun underlineFormattingMethod(textForUnderline : String){
-        if(!this.formattingFlag){
-            println("This format is not valid for formatting.")
-            return
-        }
-
-    }
-
-    fun colorFormattingMethod(textForUnderColor : String, color : Color){
-        if(!this.formattingFlag){
-            println("This format is not valid for formatting.")
-            return
-        }
-
-    }
 
     private fun readConfig(data: Map<String, List<String>>, config: String):Map<String, List<String>>? {
         val lines = File(config).readLines()
@@ -214,16 +168,11 @@ interface ReportInterface {
                 summaryRegex.matches(line) -> {
                     customSummary = summaryRegex.find(line)?.groups?.get(1)?.value
                 }
-                /*formattingRegex.matches(line) -> {
-                    val match = formattingRegex.find(line)
-                    formattingType = match?.groups?.get(1)?.value ?: ""
-                    textForFormatting = match?.groups?.get(2)?.value ?: ""
-                }*/
+
                 formattingRegex.containsMatchIn(line) -> {
-                    // `findAll` uzima sva podudaranja za regex u liniji
+
                     val matches = formattingRegex.findAll(line)
                     matches.forEach { match ->
-                        // Proveravamo da li su grupe validne i dodeljujemo vrednosti
                         val formatType = match.groups[1]?.value ?: ""
                         val targetText = match.groups[2]?.value ?: ""
                         if (formatType.isNotEmpty() && targetText.isNotEmpty()) {
@@ -233,24 +182,19 @@ interface ReportInterface {
                 }
             }
         }
-            // Ispis podataka za proveru
-            // println("FORMATIRANJE: $formattingType za text(kolonu) $textForFormatting")
 
             this.titleProperty = customTitle!!
             this.summaryProperty = customSummary!!
-            /** Dodati proveru toga da li je korisnik uopste napisao u configuration fajl neku kalkulaciju/title/summary/formatiranje ili nije.Ukoliko nije napisao onda mu poslati print neki da je pogresio ili slicno.*/
+            /** Dodati proveru toga da li je korisnik uopste napisao u configuration fajl neku kalkulaciju/title/summary/formatiranje ili nije.Ukoliko nije napisao onda baciti exception ili slicno.*/
 
 
             if (calculation == "SUM") {
-                println("Usao u sum")
                 var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
                 val dataAfterSum = calculationObject.sumCalculate()
                 if (formattingList.isNotEmpty()) {
-                    println("Poslat je zeljeni nacin formatiranja.")
                     this.formattingList = formattingList
-                    println("Mapa formattingList: "+ this.formattingList.toString())
                 }
-                else println("Nema formatiranja u config fajlu.")
+                else println("Nema formatiranja u config fajlu.")    /**IZBACITI PRINT*/
 
 
                 return dataAfterSum
@@ -258,51 +202,41 @@ interface ReportInterface {
                 var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
                 val dataAfterAvg = calculationObject.avgCalculate()
                 if (formattingList.isNotEmpty()) {
-                    println("Poslat je zeljeni nacin formatiranja.")
                     this.formattingList = formattingList
-                    println("Mapa formattingList: "+ this.formattingList.toString())
                 }
-                else println("Nema formatiranja u config fajlu.")
+                else println("Nema formatiranja u config fajlu.")    /**IZBACITI PRINT*/
                 return dataAfterAvg
             } else if (calculation == "COUNT") {
                 var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
                 val dataAfterCount = calculationObject.countCalculate(sign_Operator, numberForOperation)
                 if (formattingList.isNotEmpty()) {
-                    println("Poslat je zeljeni nacin formatiranja.")
                     this.formattingList = formattingList
-                    println("Mapa formattingList: "+ this.formattingList.toString())
                 }
-                else println("Nema formatiranja u config fajlu.")
+                else println("Nema formatiranja u config fajlu.")        /**IZBACITI PRINT*/
                 return dataAfterCount
             } else if (calculation == "SUB") {
                 var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
                 val dataAfterSub = calculationObject.subCalculate()
                 if (formattingList.isNotEmpty()) {
-                    println("Poslat je zeljeni nacin formatiranja.")
                     this.formattingList = formattingList
-                    println("Mapa formattingList: "+ this.formattingList.toString())
                 }
-                else println("Nema formatiranja u config fajlu.")
+                else println("Nema formatiranja u config fajlu.")        /**IZBACITI PRINT*/
                 return dataAfterSub
             } else if (calculation == "MUL") {
                 var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
                 val dataAfterMul = calculationObject.mulCalculate()
                 if (formattingList.isNotEmpty()) {
-                    println("Poslat je zeljeni nacin formatiranja.")
                     this.formattingList = formattingList
-                    println("Mapa formattingList: "+ this.formattingList.toString())
                 }
-                else println("Nema formatiranja u config fajlu.")
+                else println("Nema formatiranja u config fajlu.")            /**IZBACITI PRINT*/
                 return dataAfterMul
             } else if (calculation == "DIV") {
                 var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
                 val dataAfterDiv = calculationObject.divCalculate()
                 if (formattingList.isNotEmpty()) {
-                    println("Poslat je zeljeni nacin formatiranja.")
                     this.formattingList = formattingList
-                    println("Mapa formattingList: "+ this.formattingList.toString())
                 }
-                else println("Nema formatiranja u config fajlu.")
+                else println("Nema formatiranja u config fajlu.")         /**IZBACITI PRINT*/
                 return dataAfterDiv
             } else {
                 return null
@@ -314,4 +248,4 @@ interface ReportInterface {
 
 
     }
-//    /izvorPodataka.json
+//     ./testApp/src/main/resources/izvorPodataka.json

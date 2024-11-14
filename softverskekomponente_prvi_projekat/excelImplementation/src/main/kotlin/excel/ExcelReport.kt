@@ -27,19 +27,18 @@ class ExcelReport: ReportInterface{
         val workbook: Workbook = XSSFWorkbook()
         val sheet: Sheet = workbook.createSheet("Report")
 
-        // Add title if provided
+
         title?.let {
             val titleRow: Row = sheet.createRow(0)
             val titleCell: Cell = titleRow.createCell(0)
             titleCell.setCellValue(it)
 
-            // Merge title cells
+
             sheet.addMergedRegion(CellRangeAddress(0, 0, 0, data.size - 1))
 
-            // Create and set title style
+
             val titleStyle = workbook.createCellStyle().apply {
                 alignment = HorizontalAlignment.CENTER
-                // Import Font class
                 val titleFont: Font = workbook.createFont().apply {
                     bold = true
                     fontHeightInPoints = 18
@@ -48,7 +47,7 @@ class ExcelReport: ReportInterface{
             }
             titleCell.cellStyle = titleStyle
         }
-        // Create header row if necessary
+
         if (header) {
             val headerRow: Row = sheet.createRow(1)
             data.keys.forEachIndexed { index, columnName ->
@@ -56,28 +55,27 @@ class ExcelReport: ReportInterface{
             }
         }
 
-        // Add data rows
+
         val numRows = data.values.first().size
         for (i in 0 until numRows) {
-            val dataRow: Row = sheet.createRow(if (header) i + 2 else i + 1) // Adjust for header
+            val dataRow: Row = sheet.createRow(if (header) i + 2 else i + 1)
             data.keys.forEachIndexed { index, columnName ->
                 dataRow.createCell(index).setCellValue(data[columnName]?.get(i) ?: "")
             }
         }
 
-        // Add summary if provided
+
         summary?.let {
-            val summaryRow: Row = sheet.createRow(numRows + 2) // Place summary after data
+            val summaryRow: Row = sheet.createRow(numRows + 2)
             val summaryCell: Cell = summaryRow.createCell(0)
             summaryCell.setCellValue("Summary: $it")
         }
 
-        // Write to the destination file
+
         FileOutputStream(destination).use { outputStream ->
             workbook.write(outputStream)
         }
 
-        // Closing the workbook
         workbook.close()
     }
 
@@ -149,7 +147,6 @@ class ExcelReport: ReportInterface{
                 val dataCell = dataRow.createCell(index)
                 dataCell.setCellValue(data[columnName]?.get(i) ?: "")
 
-                // Primeni sve stilove za kolonu, ako ih ima
                 val columnFormats = formattingList?.filterValues { index.toString() in it }?.keys?.toList()
                 columnFormats?.let {
                     dataCell.cellStyle = createCombinedStyle(columnFormats)
@@ -163,7 +160,6 @@ class ExcelReport: ReportInterface{
             summaryCell.setCellValue("Summary: $it")
             sheet.addMergedRegion(CellRangeAddress(currentRow + 1, currentRow + 1, 0, data.size - 1))
 
-            // Primeni sve stilove definisane za `summary`
             val summaryFormats = formattingList?.filterValues { "summary" in it }?.keys?.toList()
             summaryFormats?.let {
                 summaryCell.cellStyle = createCombinedStyle(summaryFormats)

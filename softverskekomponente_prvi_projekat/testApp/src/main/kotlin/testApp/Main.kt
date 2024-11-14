@@ -220,14 +220,7 @@ fun loadData(flagForConfig : Boolean){
     }
 }
 
-/**
- *
- * 1. Napisati println za korisnika.
- * 2. Dodati fajlove gde korisnik oznacava sta zeli od kalkulacija/formatiranja.
- * 3. Napraviti funkciju koja parsira taj fajl od korisnika i kupi te podatke i zatim zove funkcije koje je potrebno uraditi za kalk/formatiranje.
- * 4. Dodati u specifikaciji funkcije za kalk/formatiranje.
- * 5. Napraviti dokumentaciju u specifikaciji(implementirati java docs).
- * */
+
 fun main() {
    serviceLoader.forEach{
             service ->
@@ -257,3 +250,4 @@ fun main() {
     }
 
 }
+//  ./testApp/src/main/resources/izvorPodataka.json

@@ -21,13 +21,13 @@ class CsvReport: ReportInterface {
         val columns = data.keys.toList()
         val numRows = data.values.first().size
 
-        // Write to CSV file
+
         File(destination).printWriter().use { writer ->
             if(header)
-                writer.println(columns.joinToString(","))  // Write the header
+                writer.println(columns.joinToString(","))
             for (i in 0 until numRows) {
                 val row = columns.map { column -> data[column]?.get(i) ?: "" }
-                writer.println(row.joinToString(","))   // Write each row
+                writer.println(row.joinToString(","))
             }
         }
     }
@@ -40,11 +40,12 @@ class CsvReport: ReportInterface {
         summary: String?,
         formattingList: Map<String, List<String>>?
     ) {
+        generateReport(data, destination, header,title,summary)
         if (!formattingFlag) {
-            print("Formatting is not valid for this type of format.")
+            throw UnsupportedOperationException("Formatting is not valid for this type of format.")
         }
 
-        generateReport(data, destination, header,title,summary)
+
     }
 
 

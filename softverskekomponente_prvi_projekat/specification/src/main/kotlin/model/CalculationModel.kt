@@ -71,6 +71,10 @@ internal class CalculationModel:Calculation {
 
     override fun countCalculate(data: Map<String, List<String>>, configColumns : List<Int>, calculationColumns :List<Int>, operand: String?, numberForOperation: Int?): Map<String, List<String>> {
 
+        if (operand.isNullOrBlank() || numberForOperation == null)
+            throw MyException("fewArguments")
+        else if (calculationColumns.size > 1)
+            throw MyException("tooManyArguments")
         val result = mutableMapOf<String, MutableList<String>>()
         result["countColumn"] = mutableListOf()
 
@@ -104,6 +108,8 @@ internal class CalculationModel:Calculation {
 
     override fun subCalculate(data: Map<String, List<String>>, configColumns : List<Int>, calculationColumns :List<Int>):Map<String, List<String>>{
 
+        if (calculationColumns.size > 2)
+            throw MyException("tooManyArguments")
         val result = mutableMapOf<String, List<String>>()
         val filteredData = mutableMapOf<String, List<String>>()
 
@@ -170,6 +176,8 @@ internal class CalculationModel:Calculation {
 
     override fun divCalculate(data: Map<String, List<String>>, configColumns : List<Int>, calculationColumns :List<Int>):Map<String, List<String>>{
 
+        if (calculationColumns.size > 2)
+            throw MyException("tooManyArguments")
         val result = mutableMapOf<String, List<String>>()
         val filteredData = mutableMapOf<String, List<String>>()
 

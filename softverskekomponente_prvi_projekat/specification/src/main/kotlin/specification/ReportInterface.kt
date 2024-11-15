@@ -1,9 +1,9 @@
 package specification
 
-import calculation.Calculation
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import model.CalculationModel
+import model.MyException
 import java.io.File
 import java.sql.ResultSet
 import java.sql.ResultSetMetaData
@@ -321,56 +321,77 @@ interface ReportInterface {
             if (calculation == "SUM") {
                 val calculationInstance = CalculationModel()
                 val dataAfterSum = calculationInstance.sumCalculate(data, columns, calculationColumns)
-                if (formattingList.isNotEmpty()) {
-                    this.formattingList = formattingList
+                try {
+                    if (formattingList.isNotEmpty())
+                        this.formattingList = formattingList
+                    else
+                        throw MyException("emptyArgument")
+                } catch (e: MyException) {
+                    println("Error: ${e.message}")
                 }
-                else println("Nema formatiranja u config fajlu.")    /**IZBACITI PRINT*/
-
-
                 return dataAfterSum
             } else if (calculation == "AVG") {
                 val calculationInstance = CalculationModel()
                 val dataAfterAvg = calculationInstance.avgCalculate(data, columns, calculationColumns)
-                if (formattingList.isNotEmpty()) {
-                    this.formattingList = formattingList
+                try {
+                    if (formattingList.isNotEmpty())
+                        this.formattingList = formattingList
+                    else
+                        throw MyException("emptyArgument")
+                } catch (e: MyException) {
+                    println("Error: ${e.message}")
                 }
-                else println("Nema formatiranja u config fajlu.")    /**IZBACITI PRINT*/
                 return dataAfterAvg
             } else if (calculation == "COUNT") {
                 val calculationInstance = CalculationModel()
                 val dataAfterCount = calculationInstance.countCalculate(data, columns, calculationColumns,sign_Operator, numberForOperation)
-                if (formattingList.isNotEmpty()) {
-                    this.formattingList = formattingList
+                try {
+                    if (formattingList.isNotEmpty())
+                        this.formattingList = formattingList
+                    else
+                        throw MyException("emptyArgument")
+                } catch (e: MyException) {
+                    println("Error: ${e.message}")
                 }
-                else println("Nema formatiranja u config fajlu.")        /**IZBACITI PRINT*/
                 return dataAfterCount
             } else if (calculation == "SUB") {
                 val calculationInstance = CalculationModel()
                 val dataAfterSub = calculationInstance.subCalculate(data, columns, calculationColumns)
-                if (formattingList.isNotEmpty()) {
-                    this.formattingList = formattingList
+                try {
+                    if (formattingList.isNotEmpty())
+                        this.formattingList = formattingList
+                    else
+                        throw MyException("emptyArgument")
+                } catch (e: MyException) {
+                    println("Error: ${e.message}")
                 }
-                else println("Nema formatiranja u config fajlu.")        /**IZBACITI PRINT*/
                 return dataAfterSub
             } else if (calculation == "MUL") {
                 val calculationInstance = CalculationModel()
                 val dataAfterMul = calculationInstance.mulCalculate(data, columns, calculationColumns)
-                if (formattingList.isNotEmpty()) {
-                    this.formattingList = formattingList
+                try {
+                    if (formattingList.isNotEmpty())
+                        this.formattingList = formattingList
+                    else
+                        throw MyException("emptyArgument")
+                } catch (e: MyException) {
+                    println("Error: ${e.message}")
                 }
-                else println("Nema formatiranja u config fajlu.")            /**IZBACITI PRINT*/
                 return dataAfterMul
             } else if (calculation == "DIV") {
                 val calculationInstance = CalculationModel()
                 val dataAfterDiv = calculationInstance.divCalculate(data, columns, calculationColumns)
-                if (formattingList.isNotEmpty()) {
-                    this.formattingList = formattingList
+                try {
+                    if (formattingList.isNotEmpty())
+                        this.formattingList = formattingList
+                    else
+                        throw MyException("emptyArgument")
+                } catch (e: MyException) {
+                    println("Error: ${e.message}")
                 }
-                else println("Nema formatiranja u config fajlu.")         /**IZBACITI PRINT*/
                 return dataAfterDiv
             } else {
-                return null
-                // mnozenje, deljenje, oduzimanje??
+                throw MyException("unknown")
             }
 
 

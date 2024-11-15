@@ -2,4 +2,3 @@ Columns for export: 0,1,2,3,4,5,6,7
 Calculations: SUM(2,3,4)
 Title: NaslovNovi
 Summary: ZakljucakNovi
-Formatting: Italic(1)Bold(5)Italic(summary)Bold(2)color_red(2)

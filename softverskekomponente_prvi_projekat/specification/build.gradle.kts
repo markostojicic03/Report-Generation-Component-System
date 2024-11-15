@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    //implementation(project(":calculation"))
+   // implementation(project(":calculation"))
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("org.example:calculation:1.0.0")
 }

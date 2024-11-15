@@ -3,6 +3,7 @@ package specification
 import calculation.Calculation
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import model.CalculationModel
 import java.io.File
 import java.sql.ResultSet
 import java.sql.ResultSetMetaData
@@ -12,7 +13,7 @@ import java.sql.ResultSetMetaData
  *
  * Implementations of this interface should define how the report is formatted and saved, specifying how the functions for generating reports will work for that format, or they may choose to use the default implementation of the function.
  */
-interface ReportInterface:Calculation {
+interface ReportInterface {
     /**
      * Each implementation that uses this interface must specify the name of the implementation as a string.
      */
@@ -318,7 +319,8 @@ interface ReportInterface:Calculation {
 
 
             if (calculation == "SUM") {
-                val dataAfterSum = sumCalculate(data, columns, calculationColumns)
+                val calculationInstance = CalculationModel()
+                val dataAfterSum = calculationInstance.sumCalculate(data, columns, calculationColumns)
                 if (formattingList.isNotEmpty()) {
                     this.formattingList = formattingList
                 }
@@ -327,35 +329,40 @@ interface ReportInterface:Calculation {
 
                 return dataAfterSum
             } else if (calculation == "AVG") {
-                val dataAfterAvg = avgCalculate(data, columns, calculationColumns)
+                val calculationInstance = CalculationModel()
+                val dataAfterAvg = calculationInstance.avgCalculate(data, columns, calculationColumns)
                 if (formattingList.isNotEmpty()) {
                     this.formattingList = formattingList
                 }
                 else println("Nema formatiranja u config fajlu.")    /**IZBACITI PRINT*/
                 return dataAfterAvg
             } else if (calculation == "COUNT") {
-                val dataAfterCount = countCalculate(data, columns, calculationColumns,sign_Operator, numberForOperation)
+                val calculationInstance = CalculationModel()
+                val dataAfterCount = calculationInstance.countCalculate(data, columns, calculationColumns,sign_Operator, numberForOperation)
                 if (formattingList.isNotEmpty()) {
                     this.formattingList = formattingList
                 }
                 else println("Nema formatiranja u config fajlu.")        /**IZBACITI PRINT*/
                 return dataAfterCount
             } else if (calculation == "SUB") {
-                val dataAfterSub = subCalculate(data, columns, calculationColumns)
+                val calculationInstance = CalculationModel()
+                val dataAfterSub = calculationInstance.subCalculate(data, columns, calculationColumns)
                 if (formattingList.isNotEmpty()) {
                     this.formattingList = formattingList
                 }
                 else println("Nema formatiranja u config fajlu.")        /**IZBACITI PRINT*/
                 return dataAfterSub
             } else if (calculation == "MUL") {
-                val dataAfterMul = mulCalculate(data, columns, calculationColumns)
+                val calculationInstance = CalculationModel()
+                val dataAfterMul = calculationInstance.mulCalculate(data, columns, calculationColumns)
                 if (formattingList.isNotEmpty()) {
                     this.formattingList = formattingList
                 }
                 else println("Nema formatiranja u config fajlu.")            /**IZBACITI PRINT*/
                 return dataAfterMul
             } else if (calculation == "DIV") {
-                val dataAfterDiv = divCalculate(data, columns, calculationColumns)
+                val calculationInstance = CalculationModel()
+                val dataAfterDiv = calculationInstance.divCalculate(data, columns, calculationColumns)
                 if (formattingList.isNotEmpty()) {
                     this.formattingList = formattingList
                 }

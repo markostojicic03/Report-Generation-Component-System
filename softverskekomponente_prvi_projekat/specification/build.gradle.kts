@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm")
     `java-library`
     `maven-publish`
+    id("org.jetbrains.dokka") version "1.8.10"
 }
 
 group = "org.example"
@@ -14,14 +15,25 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-   // implementation(project(":calculation"))
+    implementation(project(":calculation"))
     implementation("com.google.code.gson:gson:2.10.1")
-    implementation("org.example:calculation:1.0.0")
+   // implementation("org.example:calculation:1.0.0")
 }
 
 tasks.test {
     useJUnitPlatform()
 }
+tasks.javadoc{
+    dependsOn(tasks.dokkaJavadoc)
+    doLast{
+        println("Javadoc task completed with Dokka output.")
+    }
+}
+
+tasks.dokkaJavadoc{
+    outputDirectory.set(file("build/dokka/javadoc"))
+}
+
 
 publishing{
     publications {

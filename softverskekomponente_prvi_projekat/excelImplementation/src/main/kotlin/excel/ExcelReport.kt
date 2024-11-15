@@ -15,7 +15,6 @@ class ExcelReport: ReportInterface{
     override var summaryProperty: String = ""
     override var formattingList: Map<String, List<String>> = mutableMapOf()
 
-    override var dataTable: MutableMap<String, List<String>> = mutableMapOf()
 
     override fun generateReport(
         data: Map<String, List<String>>,
@@ -23,10 +22,11 @@ class ExcelReport: ReportInterface{
         header: Boolean,
         title: String?,
         summary: String?
-    ) {
+    ):Map<String, List<String>> {
         val workbook: Workbook = XSSFWorkbook()
         val sheet: Sheet = workbook.createSheet("Report")
-
+        this.titleProperty = title!!
+        this.summaryProperty = summary!!
 
         title?.let {
             val titleRow: Row = sheet.createRow(0)
@@ -77,6 +77,7 @@ class ExcelReport: ReportInterface{
         }
 
         workbook.close()
+        return data
     }
 
     override fun generateReportWithFormatting(
@@ -86,7 +87,10 @@ class ExcelReport: ReportInterface{
         title: String?,
         summary: String?,
         formattingList: Map<String, List<String>>?
-    ) {
+    ):Map<String, List<String>> {
+        this.titleProperty = title!!
+        this.summaryProperty = summary!!
+        this.formattingList = formattingList!!
         val workbook: Workbook = XSSFWorkbook()
         val sheet: Sheet = workbook.createSheet("Report")
 
@@ -172,6 +176,7 @@ class ExcelReport: ReportInterface{
         }
 
         workbook.close()
+        return data
     }
 
 

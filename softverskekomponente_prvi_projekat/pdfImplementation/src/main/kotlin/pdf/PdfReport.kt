@@ -9,14 +9,13 @@ import java.awt.Color
 import java.io.File
 import java.io.FileOutputStream
 
-class PdfReport: ReportInterface {
+class PdfReport: ReportInterface{
     override val implementationName: String = "PDF"
     override val formattingFlag: Boolean = true
     override var titleProperty: String = ""
     override var summaryProperty: String = ""
     override var formattingList: Map<String, List<String>> = mutableMapOf()
-  
-    override var dataTable: MutableMap<String, List<String>> = mutableMapOf()
+
 
     override fun generateReport(
         data: Map<String, List<String>>,
@@ -24,7 +23,10 @@ class PdfReport: ReportInterface {
         header: Boolean,
         title: String?,
         summary: String?
-    ) {
+    ):Map<String, List<String>> {
+        this.titleProperty = title!!
+        this.summaryProperty = summary!!
+
 
         val document = Document()
 
@@ -80,6 +82,7 @@ class PdfReport: ReportInterface {
         } finally {
             document.close()
         }
+        return data
     }
 
     override fun generateReportWithFormatting(
@@ -89,7 +92,10 @@ class PdfReport: ReportInterface {
         title: String?,
         summary: String?,
         formattingList: Map<String, List<String>>?
-    ) {
+    ):Map<String, List<String>> {
+        this.titleProperty = title!!
+        this.summaryProperty = summary!!
+        this.formattingList = formattingList!!
         val document = Document()
 
         try {
@@ -160,6 +166,7 @@ class PdfReport: ReportInterface {
         } finally {
             document.close()
         }
+        return data
     }
 
 

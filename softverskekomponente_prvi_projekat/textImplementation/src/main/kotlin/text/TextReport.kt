@@ -3,14 +3,14 @@ package text
 import specification.ReportInterface
 import java.io.File
 
+
 class TextReport: ReportInterface {
     override val implementationName: String = "TXT"
     override val formattingFlag: Boolean = false
     override var titleProperty: String = ""
     override var summaryProperty: String = ""
     override var formattingList: Map<String, List<String>> = mutableMapOf()
-    
-    override var dataTable: MutableMap<String, List<String>> = mutableMapOf()
+
 
 
     override fun generateReport(
@@ -19,10 +19,11 @@ class TextReport: ReportInterface {
         header: Boolean,
         title: String?,
         summary: String?
-    ) {
+    ):Map<String, List<String>> {
         val columns = data.keys.toList()
         val numRows = data.values.first().size
-
+        this.titleProperty = title!!
+        this.summaryProperty = summary!!
 
         val columnWidths = columns.map { column ->
             val maxDataWidth = data[column]?.maxOfOrNull { it.length } ?: 0
@@ -62,7 +63,7 @@ class TextReport: ReportInterface {
                 writer.println(it)
             }
         }
-        this.dataTable = data as MutableMap<String, List<String>>
+        return data
     }
 
     override fun generateReportWithFormatting(
@@ -72,12 +73,14 @@ class TextReport: ReportInterface {
         title: String?,
         summary: String?,
         formattingList: Map<String, List<String>>?
-    ) {
-
-        generateReport(data, destination, header,title,summary)
-        if (!formattingFlag) {
+    ):Map<String, List<String>> {
+        this.titleProperty = title!!
+        this.summaryProperty = summary!!
+        val dataReport = generateReport(data, destination, header,title,summary)
+        if (!formattingFlag && !formattingList.isNullOrEmpty()) {
             throw UnsupportedOperationException("Formatting is not valid for this type of format.")
         }
+        return dataReport
     }
 
 }

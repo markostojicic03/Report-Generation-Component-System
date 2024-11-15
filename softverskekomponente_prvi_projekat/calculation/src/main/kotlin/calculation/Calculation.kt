@@ -1,11 +1,7 @@
 package calculation
 
-class Calculation(data: Map<String, List<String>>, configColumns : MutableList<Int>, calculationColumns :MutableList<Int>) {
-    private var data = data
-    private var configColumns = configColumns
-    private var calculationColumns = calculationColumns
-
-    fun sumCalculate():Map<String, List<String>>{
+interface Calculation {
+    fun sumCalculate(data: Map<String, List<String>>, configColumns : List<Int>, calculationColumns :List<Int>):Map<String, List<String>>{
 
         val result = mutableMapOf<String, List<String>>()
         val filteredData = mutableMapOf<String, List<String>>()
@@ -36,7 +32,7 @@ class Calculation(data: Map<String, List<String>>, configColumns : MutableList<I
 
     }
 
-    fun avgCalculate():Map<String, List<String>>{
+    fun avgCalculate(data: Map<String, List<String>>, configColumns : List<Int>, calculationColumns :List<Int>):Map<String, List<String>>{
 
         val result = mutableMapOf<String, List<String>>()
         val filteredData = mutableMapOf<String, List<String>>()
@@ -70,7 +66,7 @@ class Calculation(data: Map<String, List<String>>, configColumns : MutableList<I
         return result
     }
 
-    fun countCalculate(operand: String?, numberForOperation: Int?): Map<String, List<String>> {
+    fun countCalculate(data: Map<String, List<String>>, configColumns : List<Int>, calculationColumns :List<Int>, operand: String?, numberForOperation: Int?): Map<String, List<String>> {
 
         val result = mutableMapOf<String, MutableList<String>>()
         result["countColumn"] = mutableListOf()
@@ -103,7 +99,7 @@ class Calculation(data: Map<String, List<String>>, configColumns : MutableList<I
     }
 
 
-    fun subCalculate():Map<String, List<String>>{
+    fun subCalculate(data: Map<String, List<String>>, configColumns : List<Int>, calculationColumns :List<Int>):Map<String, List<String>>{
 
         val result = mutableMapOf<String, List<String>>()
         val filteredData = mutableMapOf<String, List<String>>()
@@ -138,7 +134,7 @@ class Calculation(data: Map<String, List<String>>, configColumns : MutableList<I
 
     }
 
-    fun mulCalculate():Map<String, List<String>>{
+    fun mulCalculate(data: Map<String, List<String>>, configColumns : List<Int>, calculationColumns :List<Int>):Map<String, List<String>>{
 
         val result = mutableMapOf<String, List<String>>()
         val filteredData = mutableMapOf<String, List<String>>()
@@ -169,7 +165,7 @@ class Calculation(data: Map<String, List<String>>, configColumns : MutableList<I
 
     }
 
-    fun divCalculate():Map<String, List<String>>{
+    fun divCalculate(data: Map<String, List<String>>, configColumns : List<Int>, calculationColumns :List<Int>):Map<String, List<String>>{
 
         val result = mutableMapOf<String, List<String>>()
         val filteredData = mutableMapOf<String, List<String>>()

@@ -11,7 +11,7 @@ val serviceLoader = ServiceLoader.load(ReportInterface::class.java)
 fun loadData(flagForConfig : Boolean){
 
 
-    var scanner = Scanner(System.`in`)
+    val scanner = Scanner(System.`in`)
     println("1. TXT")
     println("2. Database")
     println("3. Json")

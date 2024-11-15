@@ -3,53 +3,206 @@ package specification
 import calculation.Calculation
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import java.awt.Color
 import java.io.File
 import java.sql.ResultSet
 import java.sql.ResultSetMetaData
 
-
-interface ReportInterface {
+/**
+ * An interface for generating formatted or non-formatted reports from various sources, such as a map of column data, a database, or a JSON file, to different formats.
+ *
+ * Implementations of this interface should define how the report is formatted and saved, specifying how the functions for generating reports will work for that format, or they may choose to use the default implementation of the function.
+ */
+interface ReportInterface:Calculation {
+    /**
+     * Each implementation that uses this interface must specify the name of the implementation as a string.
+     */
     val implementationName: String
+    /**
+     * Each implementation must indicate in the booleanFlag whether the format supports valid formatting (true) or not (false).
+     */
     val formattingFlag: Boolean
+    /**
+     * Each implementation must specify the title as a string. If the report does not have a title, an empty string should be used.
+     */
     var titleProperty:String
+    /**
+     * Each implementation must specify the summary as a string. If the report does not have a summary, an empty string should be used.
+     */
     var summaryProperty:String
+    /**
+     * Each implementation must include a map that specifies the types of formatting to be applied to columns, the title, and the summary.
+     * Implementations that support formatting must define this field, while implementations that do not support formatting should set this field to null.
+     *
+     */
     var formattingList : Map<String, List<String>>
-    var dataTable: MutableMap<String, List<String>>
 
-
-    fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null)
-
-    fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String){
-        var dataAfterConfig = readConfig(data,config)
-        this.dataTable = (dataAfterConfig as MutableMap<String, List<String>>?)!!
-        generateReportWithFormatting(dataAfterConfig!!, destination, header, this.titleProperty, this.summaryProperty,this.formattingList )
+    /**
+     * Generates a report based on the provided data and writes it to the specified destination.
+     *
+     * @param data A map where the key is the column name and the value is a list of strings representing the column data.
+     *             All lists in the map should have the same size to ensure proper row alignment.
+     * @param destination The file path where the report will be saved.
+     * @param header Indicates if header is provided in data
+     * @param title An optional title for the report, used only in the formatted reports.
+     * @param summary An optional summary for the report, used only in the formatted reports.
+     * @return Map<String, List<String>>; A map where the key is the column name and the value is a list of strings containing the column values.
+     */
+    fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null) :Map<String, List<String>>
+    /**
+     *  * Generates a report based on the provided data and writes it to the specified destination.
+     *   This method uses a configuration file to determine which columns to include, the calculations to perform,
+     *   and the desired formatting for the report.
+     * @param data A map where the key is the column name and the value is a list of strings representing the column data.
+     *              All lists in the map should have the same size to ensure proper row alignment.
+     * @param destination The file path where the report will be saved.
+     * @param header Indicates if header is provided in data.
+     * @param title An optional title for the report, used only in the formatted reports.
+     * @param summary An optional summary for the report, used only in the formatted reports.
+     * @param config The path to the configuration file that specifies which columns to export,
+     *  *               which calculations to perform, and the formatting options for the report.
+     *  *               Example content of the config file:
+     *  *               Columns for export: 0,1,2,3,4,5,6,7
+     *  *               Calculations: SUM(2,3,4)
+     *  *               Title: NaslovNovi
+     *  *               Summary: ZakljucakNovi
+     *  *               Formatting: Italic(1) Bold(5) Italic(summary) Bold(2) color_red(2)
+     *  @throws UnsupportedOperationException if the user specifies formatting in config file for format that does not support formatting.
+     *  @return Map<String, List<String>>; A map where the key is the column name and the value is a list of strings containing the column values.
+     * */
+    fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String):Map<String, List<String>>{
+        val dataAfterConfig = readConfig(data,config)
+        val dataAfterFormatting = generateReportWithFormatting(dataAfterConfig!!, destination, header, this.titleProperty, this.summaryProperty,this.formattingList )
+        return dataAfterFormatting
     }
+    /**
+     * Generates a report based on the provided JSON data and writes it to the specified destination.
+     * If a configuration file is provided, the report will be generated with additional options such as
+     * selected columns, calculations, title, summary, and formatting. If no configuration file is provided,
+     * the report is generated with the default settings.
+     *
+     * @param jsonData A JSON string representing the data for the report. It should contain structured data
+     *                 that can be parsed into a map of columns and their respective values.
+     * @param destination The file path where the report will be saved.
+     * @param header Indicates if header is provided in the data.
+     * @param title An optional title for the report, used only in the formatted reports.
+     * @param summary An optional summary for the report, used only in the formatted reports.
+     * @param config An optional path to a configuration file that specifies which columns to export,
+     *               which calculations to perform, and the formatting options for the report. If null,
+     *               the report will be generated without any additional configuration.
+     * @throws UnsupportedOperationException if the user specifies formatting for columns or elements
+     *      *         that do not support it.
+     * @return A map where the key is the column name and the value is a list of strings containing the column values.
+     *         The format of the returned map will depend on the provided configuration.
+     */
+    fun generateReport(jsonData: String, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String? = null):Map<String, List<String>>{
+        val preparedJsonData = prepareJsonData(jsonData)
+        if (config!=null) {
+            val dataReport = generateReport(preparedJsonData, destination, header, title, summary, config)
+            return dataReport
+        }
+        else{
+            val dataReport = generateReport(preparedJsonData, destination, header, title, summary)
+            return dataReport
+        }
 
-    fun generateReport(jsonData: String, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String? = null){
-        var preparedJsonData = prepareJsonData(jsonData)
-        this.dataTable = preparedJsonData as MutableMap<String, List<String>>
-        if (config!=null)
-            generateReport(preparedJsonData, destination, header, title, summary, config)
-        else
-            generateReport(preparedJsonData, destination, header, title, summary)
-        addColumn()
-        preparedJsonData = this.dataTable
-        generateReport(dataTable, destination, header, title, summary)
     }
-
-    fun generateReport(data: ResultSet, destination: String, header: Boolean, title: String? = null, summary: String? = null){
+    /**
+     * Generates a report based on the provided database query result (ResultSet) and writes it to the specified destination.
+     * If a configuration file is provided, the report will be generated with additional options such as
+     * selected columns, calculations, title, summary, and formatting. If no configuration file is provided,
+     * the report will be generated with the default settings.
+     *
+     * @param data A `ResultSet` object representing the result of a database query. It contains rows of data
+     *             that will be processed to generate the report.
+     * @param destination The file path where the report will be saved.
+     * @param header Indicates if header is provided in the data.
+     * @param title An optional title for the report, used only in the formatted reports.
+     * @param summary An optional summary for the report, used only in the formatted reports.
+     * @param config An optional path to a configuration file that specifies which columns to export,
+     *               which calculations to perform, and the formatting options for the report. If null,
+     *               the report will be generated without any additional configuration.
+     * @throws UnsupportedOperationException if the user specifies formatting for columns or elements
+     *               that do not support it.
+     * @return A map where the key is the column name and the value is a list of strings containing the column values.
+     *         The format of the returned map will depend on the provided configuration.
+     */
+    fun generateReport(data: ResultSet, destination: String, header: Boolean, title: String? = null, summary: String? = null, config: String? = null):Map<String, List<String>>{
         val preparedData = prepareData(data)
-        generateReport(preparedData, destination, header, title, summary)
+        if(config!=null) {
+            val dataReport = generateReport(preparedData, destination, header, title, summary, config)
+            return dataReport
+        }
+        else{
+            val dataReport = generateReport(preparedData, destination, header, title, summary)
+            return dataReport
+        }
     }
-    fun generateReportWithFormatting(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, formattingList:Map<String, List<String>>?)
 
-    /*fun generateReport(){
-        calculations(podaci)
-        generateReport(preparedData, destination, header, title, summary)
-    }*/
+    /**
+     * Generates a report based on the provided data and applies the specified formatting.
+     * The formatting is provided in the form of a map, where the key is the type of formatting (e.g., "Italic", "Bold"),
+     * and the value is a list of elements (columns or summary) that the formatting should be applied to.
+     *
+     * @param data A map where the key is the column name and the value is a list of strings representing the column data.
+     *             All lists in the map should have the same size to ensure proper row alignment.
+     * @param destination The file path where the report will be saved.
+     * @param header Indicates if header is provided in the data.
+     * @param title An optional title for the report, used only in the formatted reports.
+     * @param summary An optional summary for the report, used only in the formatted reports.
+     * @param formattingList A map where the key is the formatting type (e.g., "Italic", "Bold", "color_red"),
+     *                       and the value is a list of elements (columns or summary) to which the formatting will be applied.
+     *                       For example, the value could include specific columns or the summary text to apply formatting.
+     * @throws UnsupportedOperationException if the user specifies formatting for columns or elements
+     *      *         that do not support it.
+     * @return A map where the key is the column name and the value is a list of strings containing the formatted column values.
+     */
+    fun generateReportWithFormatting(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, formattingList:Map<String, List<String>>?):Map<String, List<String>>
 
-    fun prepareJsonData(jsonData: String): Map<String, List<String>> {
+    /**
+     * Adds a new column to the provided data map based on the configuration file specified by the path.
+     * The column name and its corresponding values are read from the configuration file and then added
+     * to the existing data map. After the column is added, the report is generated using the updated data map.
+     *
+     * @param data A map where the key is the column name and the value is a list of strings representing the column data.
+     *             All lists in the map should have the same size to ensure proper row alignment.
+     * @param destination The file path where the report will be saved.
+     * @param header Indicates if header is provided in the data.
+     * @param title An optional title for the report, used only in the formatted reports.
+     * @param summary An optional summary for the report, used only in the formatted reports.
+     * @param pathtoConfigColumn The file path to the configuration file that specifies the new column's name and values.
+     *                           The file must contain lines formatted as follows:
+     *                           - "ColumnName: <column name>"
+     *                           - "Values: <comma-separated list of values>"
+     *
+     * @return A map where the key is the column name and the value is a list of strings containing the updated column values.
+     *         The new column will be added to the map.
+     */
+    fun addColumn(data :Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null, pathtoConfigColumn: String): Map<String, List<String>>{
+        val dataForAdd = data as MutableMap<String, List<String>>
+        val configPath = pathtoConfigColumn
+        val lines = File(configPath).readLines()
+        var columnName = "n"
+        var values = listOf<String>()
+
+        lines.forEach { line ->
+            when {
+                line.startsWith("ColumnName:") -> {
+                    columnName = line.removePrefix("ColumnName:").trim()
+                }
+                line.startsWith("Values:") -> {
+                    values = line.removePrefix("Values:")
+                        .trim()
+                        .split(",")
+                        .map { it.trim()}
+                }
+            }
+        }
+        dataForAdd[columnName] = values
+        val result = generateReport(dataForAdd, destination, header, title, summary)
+        return result
+    }
+
+    private fun prepareJsonData(jsonData: String): Map<String, List<String>> {
 
         val gson = Gson()
         val scheduleType = object : TypeToken<List<Map<String, Any>>>() {}.type
@@ -89,30 +242,6 @@ interface ReportInterface {
     }
 
 
-    fun addColumn(){
-        /** IZBACITI PRINT IZ BIBLIOTEKE  */
-        print("Write path to your column config file")
-        //val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
-        val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/column.txt"
-        val lines = File(configPath).readLines()
-        var columnName = "n"
-        var values = listOf<String>()
-
-        lines.forEach { line ->
-            when {
-                line.startsWith("ColumnName:") -> {
-                    columnName = line.removePrefix("ColumnName:").trim()
-                }
-                line.startsWith("Values:") -> {
-                    values = line.removePrefix("Values:")
-                        .trim()
-                        .split(",")
-                        .map { it.trim().toString() }
-                }
-            }
-        }
-        this.dataTable[columnName] = values
-    }
 
 
     private fun readConfig(data: Map<String, List<String>>, config: String):Map<String, List<String>>? {
@@ -189,8 +318,7 @@ interface ReportInterface {
 
 
             if (calculation == "SUM") {
-                var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
-                val dataAfterSum = calculationObject.sumCalculate()
+                val dataAfterSum = sumCalculate(data, columns, calculationColumns)
                 if (formattingList.isNotEmpty()) {
                     this.formattingList = formattingList
                 }
@@ -199,40 +327,35 @@ interface ReportInterface {
 
                 return dataAfterSum
             } else if (calculation == "AVG") {
-                var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
-                val dataAfterAvg = calculationObject.avgCalculate()
+                val dataAfterAvg = avgCalculate(data, columns, calculationColumns)
                 if (formattingList.isNotEmpty()) {
                     this.formattingList = formattingList
                 }
                 else println("Nema formatiranja u config fajlu.")    /**IZBACITI PRINT*/
                 return dataAfterAvg
             } else if (calculation == "COUNT") {
-                var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
-                val dataAfterCount = calculationObject.countCalculate(sign_Operator, numberForOperation)
+                val dataAfterCount = countCalculate(data, columns, calculationColumns,sign_Operator, numberForOperation)
                 if (formattingList.isNotEmpty()) {
                     this.formattingList = formattingList
                 }
                 else println("Nema formatiranja u config fajlu.")        /**IZBACITI PRINT*/
                 return dataAfterCount
             } else if (calculation == "SUB") {
-                var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
-                val dataAfterSub = calculationObject.subCalculate()
+                val dataAfterSub = subCalculate(data, columns, calculationColumns)
                 if (formattingList.isNotEmpty()) {
                     this.formattingList = formattingList
                 }
                 else println("Nema formatiranja u config fajlu.")        /**IZBACITI PRINT*/
                 return dataAfterSub
             } else if (calculation == "MUL") {
-                var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
-                val dataAfterMul = calculationObject.mulCalculate()
+                val dataAfterMul = mulCalculate(data, columns, calculationColumns)
                 if (formattingList.isNotEmpty()) {
                     this.formattingList = formattingList
                 }
                 else println("Nema formatiranja u config fajlu.")            /**IZBACITI PRINT*/
                 return dataAfterMul
             } else if (calculation == "DIV") {
-                var calculationObject: Calculation = Calculation(data, columns, calculationColumns)
-                val dataAfterDiv = calculationObject.divCalculate()
+                val dataAfterDiv = divCalculate(data, columns, calculationColumns)
                 if (formattingList.isNotEmpty()) {
                     this.formattingList = formattingList
                 }
@@ -249,3 +372,7 @@ interface ReportInterface {
 
     }
 //     ./testApp/src/main/resources/izvorPodataka.json
+/**
+ *         val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+ *         val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/column.txt"
+ * */

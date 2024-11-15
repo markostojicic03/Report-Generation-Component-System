@@ -1,5 +1,8 @@
 package model
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 
 class MyException(message: String
 ) : Exception(
@@ -11,4 +14,16 @@ class MyException(message: String
         "fewArguments" -> "Missing keys arguments"
         else -> "Some unknown mistake happened"
     }
-)
+){
+
+        companion object {
+            private val logger: Logger = LoggerFactory.getLogger(MyException::class.java)
+        }
+        fun logError() {
+            logger.error(this.message)
+        }
+
+}
+
+
+

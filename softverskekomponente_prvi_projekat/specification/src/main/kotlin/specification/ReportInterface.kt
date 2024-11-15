@@ -327,7 +327,7 @@ interface ReportInterface {
                     else
                         throw MyException("emptyArgument")
                 } catch (e: MyException) {
-                    println("Error: ${e.message}")
+                    e.logError()
                 }
                 return dataAfterSum
             } else if (calculation == "AVG") {
@@ -339,7 +339,7 @@ interface ReportInterface {
                     else
                         throw MyException("emptyArgument")
                 } catch (e: MyException) {
-                    println("Error: ${e.message}")
+                    e.logError()
                 }
                 return dataAfterAvg
             } else if (calculation == "COUNT") {
@@ -351,7 +351,7 @@ interface ReportInterface {
                     else
                         throw MyException("emptyArgument")
                 } catch (e: MyException) {
-                    println("Error: ${e.message}")
+                    e.logError()
                 }
                 return dataAfterCount
             } else if (calculation == "SUB") {
@@ -363,7 +363,7 @@ interface ReportInterface {
                     else
                         throw MyException("emptyArgument")
                 } catch (e: MyException) {
-                    println("Error: ${e.message}")
+                    e.logError()
                 }
                 return dataAfterSub
             } else if (calculation == "MUL") {
@@ -375,7 +375,7 @@ interface ReportInterface {
                     else
                         throw MyException("emptyArgument")
                 } catch (e: MyException) {
-                    println("Error: ${e.message}")
+                    e.logError()
                 }
                 return dataAfterMul
             } else if (calculation == "DIV") {
@@ -387,14 +387,18 @@ interface ReportInterface {
                     else
                         throw MyException("emptyArgument")
                 } catch (e: MyException) {
-                    println("Error: ${e.message}")
+                    e.logError()
                 }
                 return dataAfterDiv
             } else {
-                throw MyException("unknown")
+                try {
+                    throw MyException("emptyArgument")
+                } catch (e: MyException) {
+                    e.logError()
+                }
             }
 
-
+            return null
         }
 
 

@@ -80,4 +80,10 @@ interface Calculation {
      * @return A map with an added column that contains the calculated division result for the specified columns.
      * */
     fun divCalculate(data: Map<String, List<String>>, configColumns : List<Int>, calculationColumns :List<Int>):Map<String, List<String>>
+
+    fun summarySumCalculate(data: Map<String, List<String>>, customSummary: String, configColumns : List<Int>, calculationColumns :List<Int>):String
+
+    fun summaryAvgCalculate(data: Map<String, List<String>>, customSummary: String, configColumns : List<Int>, calculationColumns :List<Int>):String
+
+    fun summaryCountCalculate(data: Map<String, List<String>>, customSummary: String, configColumns : List<Int>, calculationColumns :List<Int>, summSign_Operator: String?, summNumberForOperation: Int?):String
 }

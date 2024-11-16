@@ -253,14 +253,17 @@ interface ReportInterface {
         val calculationColumns = mutableListOf<Int>()
         var customTitle: String? = null
         var customSummary: String? = null
+        val summaryColumns = mutableListOf<Int>()
         val formattingList = mutableMapOf<String, MutableList<String>>()
         var sign_Operator: String? = null
         var numberForOperation: Int? = null
+        var summSign_Operator: String? = null
+        var summNumberForOperation: Int? = null
 
         val columnsRegex = Regex("""Columns for export:\s*([\d,]+)""")
         val calculationRegex = Regex("""Calculations:\s*(\w+)\((\d+(?:,(?:\d+|[<>=]\d+))*)\s*(?:([<>=]+)\s*(\d+))?\)""")
         val titleRegex = Regex("""Title:\s*(.*)""")
-        val summaryRegex = Regex("""Summary:\s*(.*)""")
+        val summaryRegex = Regex("""Summary:\s*(\w+)\(\s*(\d+(?:,\s*[<>=]?\d+)*)?\s*\)""")
         val formattingRegex = Regex("""([a-zA-Z_]+)\((\w+)\)""")
         for (line in lines) {
             when {
@@ -277,8 +280,8 @@ interface ReportInterface {
                     if (calculation == "COUNT") {
                         match?.groups?.get(2)?.value?.split(",")?.forEach { part ->
                             when {
-                                part.matches(Regex("""\d+""")) -> calculationColumns.add(part.toInt())
-                                part.matches(Regex("""[<>=]\d+""")) -> {
+                                part.matches(Regex("""\d""")) -> calculationColumns.add(part.toInt())
+                                part.matches(Regex("""[<>=]\d""")) -> {
                                     sign_Operator = part.first().toString()
                                     numberForOperation = part.drop(1).toInt()
                                 }
@@ -296,8 +299,29 @@ interface ReportInterface {
                 }
 
                 summaryRegex.matches(line) -> {
-                    customSummary = summaryRegex.find(line)?.groups?.get(1)?.value
-                }
+                    val match = summaryRegex.find(line)
+                    customSummary = match?.groups?.get(1)?.value
+                    if (customSummary == "COUNT") {
+                        val arguments = match?.groups?.get(2)?.value?.split(",")?.map { it.trim() } ?: listOf()
+
+                        arguments.forEachIndexed { index, part ->
+                            when {
+                                index == 0 && part.matches(Regex("""\d""")) -> {
+                                    summaryColumns.add(part.toInt())
+                                }
+                                index > 0 && part.matches(Regex("""[<>=]\d""")) -> {
+                                    summSign_Operator = part.first().toString()
+                                    summNumberForOperation = part.drop(1).toInt()
+                                }
+                            }
+                        }
+                    } else {
+                        val num = match?.groups?.get(2)?.value?.toInt()
+                        if (num != null) {
+                            summaryColumns.add(num)
+                        }
+                        }
+                    }
 
                 formattingRegex.containsMatchIn(line) -> {
 
@@ -314,7 +338,22 @@ interface ReportInterface {
         }
 
             this.titleProperty = customTitle!!
-            this.summaryProperty = customSummary!!
+            if (customSummary == "SUM"){
+                val calculationInstance = CalculationModel()
+                this.summaryProperty = calculationInstance.summarySumCalculate(data, customSummary, columns, summaryColumns)
+            }else if (customSummary == "AVG"){
+                val calculationInstance = CalculationModel()
+                this.summaryProperty = calculationInstance.summaryAvgCalculate(data, customSummary, columns, summaryColumns)
+            }else if (customSummary == "COUNT"){
+                val calculationInstance = CalculationModel()
+                this.summaryProperty = calculationInstance.summaryCountCalculate(data, customSummary, columns, summaryColumns, summSign_Operator, summNumberForOperation)
+            }else{
+                try {
+                    throw MyException("emptyArgument")
+                } catch (e: MyException) {
+                    e.logError()
+                }
+            }
             /** Dodati proveru toga da li je korisnik uopste napisao u configuration fajl neku kalkulaciju/title/summary/formatiranje ili nije.Ukoliko nije napisao onda baciti exception ili slicno.*/
 
 

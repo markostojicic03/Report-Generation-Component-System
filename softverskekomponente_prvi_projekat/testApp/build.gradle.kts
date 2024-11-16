@@ -25,7 +25,7 @@ dependencies {
 }
 
 application{
-    mainClass.set("testApp.MainKt")
+    mainClass.set("org.example.testApp.MainKt")
 }
 
 

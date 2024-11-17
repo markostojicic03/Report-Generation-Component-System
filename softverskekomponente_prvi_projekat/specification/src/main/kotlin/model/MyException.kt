@@ -4,7 +4,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 
-class MyException(message: String
+internal class MyException(message: String
 ) : Exception(
     when (message) {
         "tooManyArguments" -> "Too many arguments provided. Please check your input."
@@ -12,6 +12,7 @@ class MyException(message: String
         "invalidFormat" -> "Invalid format provided."
         "unknown" -> "Unknown error related to formatting."
         "fewArguments" -> "Missing keys arguments"
+        "formattingNotAllowed" -> "This format does not support formatting."
         else -> "Some unknown mistake happened"
     }
 ){

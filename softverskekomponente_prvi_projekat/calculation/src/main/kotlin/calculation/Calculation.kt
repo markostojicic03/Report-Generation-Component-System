@@ -80,10 +80,46 @@ interface Calculation {
      * @return A map with an added column that contains the calculated division result for the specified columns.
      * */
     fun divCalculate(data: Map<String, List<String>>, configColumns : List<Int>, calculationColumns :List<Int>):Map<String, List<String>>
-
+    /**
+     *
+     *
+     * Calculates the sum of the specified column for summary calculation.
+     *
+     * @param data A map where the key is the column name and the value is a list of strings representing the column data.
+     * @param customSummary A custom message or text that will be appended with the calculated sum.
+     * @param configColumns A list of indices indicating the columns the user wishes to include in the report.
+     * @param calculationColumns A list of indices indicating the specific column for which the sum should be calculated.
+     * @return A string representing the custom summary with the appended sum result.
+     *
+     * */
     fun summarySumCalculate(data: Map<String, List<String>>, customSummary: String, configColumns : List<Int>, calculationColumns :List<Int>):String
 
-    fun summaryAvgCalculate(data: Map<String, List<String>>, customSummary: String, configColumns : List<Int>, calculationColumns :List<Int>):String
+    /**
+     *  Calculates the average of the specified column for summary calculation.
+     *
+     *
+     *
+     * @param data A map where the key is the column name and the value is a list of strings representing the column data.
+     * @param customSummary A custom message or text that will be appended with the calculated average.
+     * @param configColumns A list of indices indicating the columns the user wishes to include in the report.
+     * @param calculationColumns A list of indices indicating the specific column for which the average should be calculated.
+     * @return A string representing the custom summary with the appended average result.
+     * */
 
+    fun summaryAvgCalculate(data: Map<String, List<String>>, customSummary: String, configColumns : List<Int>, calculationColumns :List<Int>):String
+    /**
+     * Counts the number of values in the specified column that meet a given condition for summary calculation.
+     *
+     *
+     *
+     * @param data A map where the key is the column name and the value is a list of strings representing the column data.
+     * @param customSummary A custom message or text that will be appended with the count result.
+     * @param configColumns A list of indices indicating the columns the user wishes to include in the report.
+     * @param calculationColumns A list of indices indicating the specific column for which the count should be calculated.
+     * @param summSign_Operator An optional string representing the operator to use for the condition (e.g., “<”, “>”, “=”).
+     * @param summNumberForOperation An optional integer used in conjunction with the operator for the count condition.
+     * @return A string representing the custom summary with the appended count result.
+     *
+     * */
     fun summaryCountCalculate(data: Map<String, List<String>>, customSummary: String, configColumns : List<Int>, calculationColumns :List<Int>, summSign_Operator: String?, summNumberForOperation: Int?):String
 }

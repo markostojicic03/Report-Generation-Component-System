@@ -1,5 +1,6 @@
 package text
 
+
 import specification.ReportInterface
 import java.io.File
 
@@ -22,8 +23,12 @@ class TextReport: ReportInterface {
     ):Map<String, List<String>> {
         val columns = data.keys.toList()
         val numRows = data.values.first().size
-        this.titleProperty = title!!
-        this.summaryProperty = summary!!
+        if (title != null) {
+            this.titleProperty = title
+        }
+        if (summary != null) {
+            this.summaryProperty = summary
+        }
 
         val columnWidths = columns.map { column ->
             val maxDataWidth = data[column]?.maxOfOrNull { it.length } ?: 0
@@ -77,9 +82,6 @@ class TextReport: ReportInterface {
         this.titleProperty = title!!
         this.summaryProperty = summary!!
         val dataReport = generateReport(data, destination, header,title,summary)
-        if (!formattingFlag && !formattingList.isNullOrEmpty()) {
-            throw UnsupportedOperationException("Formatting is not valid for this type of format.")
-        }
         return dataReport
     }
 

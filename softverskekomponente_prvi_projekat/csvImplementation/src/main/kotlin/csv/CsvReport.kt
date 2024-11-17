@@ -17,8 +17,12 @@ class CsvReport: ReportInterface {
         title: String?,
         summary: String?
     ):Map<String, List<String>> {
-        this.titleProperty = title!!
-        this.summaryProperty = summary!!
+        if (title != null) {
+            this.titleProperty = title
+        }
+        if (summary != null) {
+            this.summaryProperty = summary
+        }
 
         val columns = data.keys.toList()
         val numRows = data.values.first().size
@@ -46,9 +50,6 @@ class CsvReport: ReportInterface {
         this.titleProperty = title!!
         this.summaryProperty = summary!!
         val dataReport = generateReport(data, destination, header,title,summary)
-        if (!formattingFlag && !formattingList.isNullOrEmpty()) {
-            throw UnsupportedOperationException("Formatting is not valid for this type of format.")
-        }
         return dataReport
 
 

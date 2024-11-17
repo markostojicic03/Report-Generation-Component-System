@@ -24,8 +24,12 @@ class PdfReport: ReportInterface{
         title: String?,
         summary: String?
     ):Map<String, List<String>> {
-        this.titleProperty = title!!
-        this.summaryProperty = summary!!
+        if (title != null) {
+            this.titleProperty = title
+        }
+        if (summary != null) {
+            this.summaryProperty = summary
+        }
 
 
         val document = Document()
@@ -110,6 +114,7 @@ class PdfReport: ReportInterface{
                         "italic" -> font.style = font.style or Font.ITALIC
                         "color_red" -> font.color = Color.RED
                         "color_blue" -> font.color = Color.BLUE
+                        "color_green" -> font.color = Color.GREEN
                     }
                 }
                 return font

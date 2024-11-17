@@ -22,16 +22,46 @@ fun askForFormat(flagForConfig: Boolean, dataDataBase: Map<String, List<String>>
     println("---------------------------------")
     when(formatResponse){
         1 -> {
-            if(!flagForConfig){
-                if(flagForJson) exporterServices["TXT"]?.generateReport(dataJson, "izlazTxtNormal.txt", true)
-                else exporterServices["TXT"]?.generateReport(dataDataBase, "izlazTxtNormal.txt", true)
+            if(!flagForConfig) {
+                if (flagForJson) {
+                    var dataResult = exporterServices["TXT"]?.generateReport(dataJson, "izlazTxtNormal.txt", true)
+                    print("Do you want to add a new column(1 - yes, 0 -no): ")
+                    var newColumnResponse = scanner.nextInt()
+                    println("---------------------------------")
+                    if (newColumnResponse == 1) {
+                        if (dataResult != null) {
+                            exporterServices["TXT"]?.addColumn(
+                                dataResult,
+                                "izlazAddColumn.txt",
+                                true,
+                                pathtoConfigColumn = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\column.txt"
+                            )
+                        }
+                    }
+                }
+                else {
+                    var dataResult = exporterServices["TXT"]?.generateReport(dataDataBase, "izlazTxtNormal.txt", true)
+                    print("Do you want to add a new column(1 - yes, 0 -no): ")
+                    var newColumnResponse = scanner.nextInt()
+                    println("---------------------------------")
+                    if (newColumnResponse == 1) {
+                        if (dataResult != null) {
+                            exporterServices["TXT"]?.addColumn(
+                                dataResult,
+                                "izlazAddColumn.txt",
+                                true,
+                                pathtoConfigColumn = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\column.txt"
+                            )
+                        }
+                    }
+                }
             }
             else{
                 val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
                 if (inputStream != null) {
 
-                    //val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
-                    val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
+                    val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+                    //val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/config.txt"
 
                     if(flagForJson) exporterServices["TXT"]?.generateReport(dataJson, "izlazTxtConfig.txt", true, title = "", summary = "", config = configPath)
                     else exporterServices["TXT"]?.generateReport(dataDataBase, "izlazTxtConfig.txt", true, title = "", summary = "", config = configPath)
@@ -42,8 +72,38 @@ fun askForFormat(flagForConfig: Boolean, dataDataBase: Map<String, List<String>>
         }
         2 -> {
             if(!flagForConfig){
-                if(flagForJson)  exporterServices["CSV"]?.generateReport(dataJson, "izlazCsvNormal.csv", true)
-                else  exporterServices["CSV"]?.generateReport(dataDataBase, "izlazCsvNormal.csv", true)
+                if(flagForJson){
+                    var dataResult = exporterServices["CSV"]?.generateReport(dataJson, "izlazCsvNormal.csv", true)
+                    print("Do you want to add a new column(1 - yes, 0 -no): ")
+                    var newColumnResponse = scanner.nextInt()
+                    println("---------------------------------")
+                    if (newColumnResponse == 1) {
+                        if (dataResult != null) {
+                            exporterServices["CSV"]?.addColumn(
+                                dataResult,
+                                "izlazAddColumn.csv",
+                                true,
+                                pathtoConfigColumn = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\column.txt"
+                            )
+                        }
+                    }
+                }
+                else{
+                    var dataResult = exporterServices["CSV"]?.generateReport(dataDataBase, "izlazCsvNormal.csv", true)
+                    print("Do you want to add a new column(1 - yes, 0 -no): ")
+                    var newColumnResponse = scanner.nextInt()
+                    println("---------------------------------")
+                    if (newColumnResponse == 1) {
+                        if (dataResult != null) {
+                            exporterServices["CSV"]?.addColumn(
+                                dataResult,
+                                "izlazAddColumn.csv",
+                                true,
+                                pathtoConfigColumn = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\column.txt"
+                            )
+                        }
+                    }
+                }
             }
             else{
                 val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
@@ -60,8 +120,38 @@ fun askForFormat(flagForConfig: Boolean, dataDataBase: Map<String, List<String>>
         }
         3 -> {
             if(!flagForConfig){
-                if(flagForJson) exporterServices["PDF"]?.generateReport(dataJson, "izlazPdfNormal.pdf", true)
-                else exporterServices["PDF"]?.generateReport(dataDataBase, "izlazPdfNormal.pdf", true)
+                if(flagForJson){
+                   var dataResult =  exporterServices["PDF"]?.generateReport(dataJson, "izlazPdfNormal.pdf", true)
+                    print("Do you want to add a new column(1 - yes, 0 -no): ")
+                    var newColumnResponse = scanner.nextInt()
+                    println("---------------------------------")
+                    if (newColumnResponse == 1) {
+                        if (dataResult != null) {
+                            exporterServices["PDF"]?.addColumn(
+                                dataResult,
+                                "izlazAddColumn.pdf",
+                                true,
+                                pathtoConfigColumn = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\column.txt"
+                            )
+                        }
+                    }
+                }
+                else{
+                    var dataResult = exporterServices["PDF"]?.generateReport(dataDataBase, "izlazPdfNormal.pdf", true)
+                    print("Do you want to add a new column(1 - yes, 0 -no): ")
+                    var newColumnResponse = scanner.nextInt()
+                    println("---------------------------------")
+                    if (newColumnResponse == 1) {
+                        if (dataResult != null) {
+                            exporterServices["PDF"]?.addColumn(
+                                dataResult,
+                                "izlazAddColumn.pdf",
+                                true,
+                                pathtoConfigColumn = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\column.txt"
+                            )
+                        }
+                    }
+                }
             }
             else{
                 val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
@@ -78,8 +168,38 @@ fun askForFormat(flagForConfig: Boolean, dataDataBase: Map<String, List<String>>
         }
         4 -> {
             if(!flagForConfig){
-                if(flagForJson) exporterServices["XLS"]?.generateReport(dataJson, "izlazExcelNormal.xls", true)
-                else exporterServices["XLS"]?.generateReport(dataDataBase, "izlazExcelNormal.xls", true)
+                if(flagForJson){
+                   var dataResult = exporterServices["XLS"]?.generateReport(dataJson, "izlazExcelNormal.xls", true)
+                    print("Do you want to add a new column(1 - yes, 0 -no): ")
+                    var newColumnResponse = scanner.nextInt()
+                    println("---------------------------------")
+                    if (newColumnResponse == 1) {
+                        if (dataResult != null) {
+                            exporterServices["XLS"]?.addColumn(
+                                dataResult,
+                                "izlazAddColumn.xls",
+                                true,
+                                pathtoConfigColumn = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\column.txt"
+                            )
+                        }
+                    }
+                }
+                else{
+                    var dataResult = exporterServices["XLS"]?.generateReport(dataDataBase, "izlazExcelNormal.xls", true)
+                    print("Do you want to add a new column(1 - yes, 0 -no): ")
+                    var newColumnResponse = scanner.nextInt()
+                    println("---------------------------------")
+                    if (newColumnResponse == 1) {
+                        if (dataResult != null) {
+                            exporterServices["XLS"]?.addColumn(
+                                dataResult,
+                                "izlazAddColumn.xls",
+                                true,
+                                pathtoConfigColumn = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\column.txt"
+                            )
+                        }
+                    }
+                }
             }
             else{
                 val inputStream = object {}.javaClass.getResourceAsStream("/config.txt")
@@ -119,15 +239,12 @@ fun loadData(flagForConfig : Boolean){
         1 -> {   /// DEO ZA BAZU PODATAKA
             print("Write path to your database: ")
             var urlSc = scanner.next()
-            //val url = "jdbc:mysql://localhost:3306/raspored"
             print("Write your user name: ")
             var userSc = scanner.next()
-            val user = "root"
             print("Write your password: ")
             var passwordSc = readlnOrNull()
             if (passwordSc == null)
                 passwordSc = ""
-            val password = ""
             val data = mutableMapOf<String, MutableList<String>>()
             DriverManager.getConnection(urlSc, userSc, passwordSc.toString()).use { connection ->
                 val statement = connection.createStatement()
@@ -172,7 +289,7 @@ fun main() {
         println("----------------------------------------------")
         println("1. Generate your report.")
         println("2. Generate your report with additional configuration.")
-        println("4. Exit.")
+        println("3. Exit.")
         println("----------------------------------------------")
         print("Choose your option: ")
         var response = scanner.nextInt()
@@ -180,8 +297,7 @@ fun main() {
         when (response) {
             1 -> loadData(false)
             2 -> loadData(true)
-            3 -> println(3)
-            4 -> break
+            3 -> break
             else -> println("Unknown command.")
         }
     }
@@ -189,11 +305,14 @@ fun main() {
 }
 /**
  *          BITNE PUTANJE:
- * 1) Za ucitavanje baze podataka:
- *    val url = "jdbc:mysql://localhost:3306/raspored"
- *
+ *  1) Za ucitavanje baze podataka:
+ *    jdbc:mysql://localhost:3306/raspored
+ *    jdbc:mysql://localhost:3306/podaciZaIzvestaj
+ *  2) Putanje za json
+ *    ./testApp/src/main/resources/izvorPodataka.json ----> ovo je putanja za json koja se pise kada pokrecemo program u intellij-u
+ *   ../../src/main/resources/izvorPodataka.json      ----> ovo je putanja za json koja se pise kada pokrecemo program preko jar-a u terminalu
+ *  3) Putanje za config fajl:
+ *     val configPath = "D:\\Marko workspace\\Fakultet\\Projekti\\softverskekomponente_tim_markostojicic_vidanstojic\\softverskekomponente_prvi_projekat\\testApp\\src\\main\\resources\\config.txt"
+ *     val configPath = "C:/Users/vidan_gofx79m/Desktop/softverske komponente/softverskekomponente_tim_markostojicic_vidanstojic/softverskekomponente_prvi_projekat/testApp/src/main/resources/column.txt"
  * */
 
-
-//  ./testApp/src/main/resources/izvorPodataka.json ----> ovo je putanja za json koja se pise kada pokrecemo program u intellij-u
-// ../../src/main/resources/izvorPodataka.json      ----> ovo je putanja za json koja se pise kada pokrecemo program preko jar-a u terminalu

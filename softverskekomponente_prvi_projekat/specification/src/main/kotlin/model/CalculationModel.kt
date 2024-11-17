@@ -101,7 +101,6 @@ internal class CalculationModel:Calculation {
 
         val numRows = result["countColumn"]?.size ?: 0
         result["countColumn"]?.add("Count $numRows")
-        println(numRows)
         return result
     }
 

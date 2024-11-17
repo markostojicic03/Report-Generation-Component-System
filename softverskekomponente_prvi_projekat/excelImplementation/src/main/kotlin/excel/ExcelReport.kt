@@ -25,8 +25,12 @@ class ExcelReport: ReportInterface{
     ):Map<String, List<String>> {
         val workbook: Workbook = XSSFWorkbook()
         val sheet: Sheet = workbook.createSheet("Report")
-        this.titleProperty = title!!
-        this.summaryProperty = summary!!
+        if (title != null) {
+            this.titleProperty = title
+        }
+        if (summary != null) {
+            this.summaryProperty = summary
+        }
 
         title?.let {
             val titleRow: Row = sheet.createRow(0)
@@ -98,6 +102,7 @@ class ExcelReport: ReportInterface{
         val italicFont = workbook.createFont().apply { italic = true }
         val redFont = workbook.createFont().apply { color = IndexedColors.RED.index }
         val blueFont = workbook.createFont().apply { color = IndexedColors.BLUE.index }
+        val greenFont = workbook.createFont().apply { color = IndexedColors.GREEN.index }
 
         fun createCombinedStyle(formattingKeys: List<String>): CellStyle {
             val cellStyle = workbook.createCellStyle()
@@ -110,6 +115,7 @@ class ExcelReport: ReportInterface{
                     "underline" -> combinedFont.underline = Font.U_SINGLE
                     "color_red" -> combinedFont.color = IndexedColors.RED.index
                     "color_blue" -> combinedFont.color = IndexedColors.BLUE.index
+                    "color_green" -> combinedFont.color = IndexedColors.GREEN.index
                 }
             }
             cellStyle.setFont(combinedFont)
